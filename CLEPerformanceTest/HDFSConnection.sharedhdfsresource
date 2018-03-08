@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BWSharedResource>
+    <name>HDFSConnection</name>
+    <resourceType>hadoop.sharedresource.HDFSSharedResource</resourceType>
+    <config>
+        <webhdfsUrl>http://10.97.119.15:50070</webhdfsUrl>
+        <userName>hdfs</userName>
+    </config>
+</BWSharedResource>

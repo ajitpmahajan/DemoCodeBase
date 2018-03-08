@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BWSharedResource>
+    <name>HR_DB</name>
+    <resourceType>ae.shared.JDBCSharedResource</resourceType>
+    <config>
+        <driver>oracle.jdbc.driver.OracleDriver (thin)</driver>
+        <maxConnections>%%AssessmentApp/Database/DB_MAX_CONS%%</maxConnections>
+        <loginTimeout>%%AssessmentApp/Database/DB_LOGIN_TIMEOUT%%</loginTimeout>
+        <connectionType>JDBC</connectionType>
+        <UseSharedJndiConfig>false</UseSharedJndiConfig>
+        <location>%%AssessmentApp/Database/DB_URL%%</location>
+        <user>%%AssessmentApp/Database/DB_USER%%</user>
+        <password>%%AssessmentApp/Database/DB_PSWD%%</password>
+    </config>
+</BWSharedResource>

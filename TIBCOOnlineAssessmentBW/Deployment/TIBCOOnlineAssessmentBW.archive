@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Repository:repository xmlns:Repository="http://www.tibco.com/xmlns/repo/types/2002">
+    <enterpriseArchive>
+        <sharedArchive name="Shared Archive">
+            <resourceType>shared.archive.resource</resourceType>
+            <authorProperty>staff123</authorProperty>
+        </sharedArchive>
+        <processArchive name="Process Archive">
+            <resourceType>process.archive.resource</resourceType>
+            <authorProperty>drebello</authorProperty>
+            <processProperty>/Processes/JSON Wrapper/AssessmentService.process</processProperty>
+        </processArchive>
+        <versionProperty>5</versionProperty>
+        <authorProperty>nkokate</authorProperty>
+        <addServiceSettableGvars>true</addServiceSettableGvars>
+        <name>TIBCOOnlineAssessmentBW</name>
+        <designer>
+            <lockedProperties/>
+            <fixedChildren/>
+            <resourceDescriptions/>
+        </designer>
+        <fileLocationProperty>C:\Users\nkokate\Desktop\TIBCOOnlineAssessmentBW.ear</fileLocationProperty>
+    </enterpriseArchive>
+</Repository:repository>

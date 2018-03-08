@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pd:ProcessDefinition xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:pfx="http://xmlns.example.com/1484417652447" xmlns:pd="http://xmlns.tibco.com/bw/process/2003" xmlns:ns="http://www.tibco.com/schemas/TIBCO/SharedResources/Schema/TibcoOnlineAssessmentSchema.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://www.tibco.com/namespaces/tnt/plugins/json" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <xsd:import namespace="http://www.tibco.com/schemas/TIBCO/SharedResources/Schema/TibcoOnlineAssessmentSchema.xsd" schemaLocation="/SharedResources/Schema/TIBCOOnlineAssessmentSchema.xsd"/>
+    <wsdl:import namespace="http://xmlns.example.com/1484417652447" location="/SharedResources/WSDL/WSDL.wsdl"/>
+    <pd:name>Processes/StarterProcess/LoginUser.process</pd:name>
+    <pd:startName>Start</pd:startName>
+    <pd:startType>
+        <xsd:element name="jsonRequest" type="xsd:string"/>
+    </pd:startType>
+    <pd:startX>99</pd:startX>
+    <pd:startY>142</pd:startY>
+    <pd:returnBindings>
+        <jsonResponse>
+            <xsl:value-of select="$Render-JSON/ns1:ActivityOutputClass/jsonString"/>
+        </jsonResponse>
+    </pd:returnBindings>
+    <pd:endName>End</pd:endName>
+    <pd:endType>
+        <xsd:element name="jsonResponse" type="xsd:string"/>
+    </pd:endType>
+    <pd:endX>677</pd:endX>
+    <pd:endY>247</pd:endY>
+    <pd:errorSchemas/>
+    <pd:processVariables/>
+    <pd:targetNamespace>http://xmlns.example.com/1484075326266</pd:targetNamespace>
+    <pd:activity name="AuthenticateLDAP">
+        <pd:type>com.tibco.plugin.java.JavaActivity</pd:type>
+        <pd:resourceType>ae.javapalette.javaActivity</pd:resourceType>
+        <pd:x>382</pd:x>
+        <pd:y>142</pd:y>
+        <config>
+            <fullsource>package Processes.StarterProcess.LoginUser;
+import java.util.*;
+import java.io.*;
+import java.util.Hashtable;
+import javax.naming.*;
+import javax.naming.directory.*;
+@SuppressWarnings("unchecked")
+public class LoginUserAuthenticateLDAP{
+/****** START SET/GET METHOD, DO NOT MODIFY *****/
+	protected String Username = "";
+	protected String Password = "";
+	protected String LDAP_URL = "";
+	protected String SearchBase = "";
+	protected String SearchFilter = "";
+	protected boolean IsAuthenticated = false;
+	protected String CommonName = "";
+	protected String EmployeeEmailAddress = "";
+	protected String EmployeeID = "";
+	public String getUsername() {
+		return Username;
+	}
+	public void setUsername(String val) {
+		Username = val;
+	}
+	public String getPassword() {
+		return Password;
+	}
+	public void setPassword(String val) {
+		Password = val;
+	}
+	public String getLDAP_URL() {
+		return LDAP_URL;
+	}
+	public void setLDAP_URL(String val) {
+		LDAP_URL = val;
+	}
+	public String getSearchBase() {
+		return SearchBase;
+	}
+	public void setSearchBase(String val) {
+		SearchBase = val;
+	}
+	public String getSearchFilter() {
+		return SearchFilter;
+	}
+	public void setSearchFilter(String val) {
+		SearchFilter = val;
+	}
+	public boolean getIsAuthenticated() {
+		return IsAuthenticated;
+	}
+	public void setIsAuthenticated(boolean val) {
+		IsAuthenticated = val;
+	}
+	public String getCommonName() {
+		return CommonName;
+	}
+	public void setCommonName(String val) {
+		CommonName = val;
+	}
+	public String getEmployeeEmailAddress() {
+		return EmployeeEmailAddress;
+	}
+	public void setEmployeeEmailAddress(String val) {
+		EmployeeEmailAddress = val;
+	}
+	public String getEmployeeID() {
+		return EmployeeID;
+	}
+	public void setEmployeeID(String val) {
+		EmployeeID = val;
+	}
+/****** END SET/GET METHOD, DO NOT MODIFY *****/
+	public LoginUserAuthenticateLDAP() {
+	}
+	public void invoke() throws Exception {
+/* Available Variables: DO NOT MODIFY
+	In  : String Username
+	In  : String Password
+	In  : String LDAP_URL
+	In  : String SearchBase
+	In  : String SearchFilter
+	Out : boolean IsAuthenticated
+	Out : String CommonName
+	Out : String EmployeeEmailAddress
+	Out : String EmployeeID
+* Available Variables: DO NOT MODIFY *****/
+
+	    String INITCTX = "com.sun.jndi.ldap.LdapCtxFactory";
+	    String MY_HOST = LDAP_URL;
+            String MGR_DN = Username;
+            String MGR_PW = Password;
+
+            //Identify service provider to use
+            Hashtable env = new Hashtable();
+            env.put(Context.INITIAL_CONTEXT_FACTORY, INITCTX);
+            env.put(Context.PROVIDER_URL, MY_HOST);
+            env.put(Context.SECURITY_AUTHENTICATION, "simple");
+            env.put(Context.SECURITY_PRINCIPAL, MGR_DN);
+            env.put(Context.SECURITY_CREDENTIALS, MGR_PW);
+
+            try  {
+                // Create the initial directory context
+                InitialDirContext initialContext = new InitialDirContext(env);
+		 /* Once the above line was executed successfully, the user is said to be * authenticated and the InitialDirContext object will be created.*/
+                DirContext ctx = (DirContext)initialContext;
+                //System.out.println("Context Sucessfully Initialized"+ctx);
+		IsAuthenticated=true;
+
+		SearchControls constraints = new SearchControls();
+		constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
+		String[] attrIDs = {"cn","distinguishedName","sn","givenname","mail","telephonenumber","employeeNumber"};
+		constraints.setReturningAttributes(attrIDs);
+		
+		//First input parameter is search bas, it can be "CN=Users,DC=YourDomain,DC=com"
+		//Second Attribute can be uid=username
+		NamingEnumeration answer = ctx.search(SearchBase, SearchFilter, constraints);
+		if (answer.hasMore()) {
+			Attributes attrs = ((SearchResult) answer.next()).getAttributes();
+			System.out.println("cn"+ attrs.get("cn"));
+			CommonName= attrs.get("cn").toString();
+			System.out.println("distinguishedName "+ attrs.get("distinguishedName"));
+			System.out.println("givenname "+ attrs.get("givenname"));
+			System.out.println("sn "+ attrs.get("sn"));
+			System.out.println("mail "+ attrs.get("mail"));
+			EmployeeEmailAddress= attrs.get("mail").toString();
+			System.out.println("telephonenumber "+ attrs.get("telephonenumber"));
+			System.out.println("employeeNumber "+ attrs.get("employeeNumber"));
+			EmployeeID= attrs.get("employeeNumber").toString();
+            	}
+            }
+            catch(Exception e)  {
+		IsAuthenticated=false;
+                // Authentication failed, just check on the exception and do something about it.
+		//System.out.println("Context Sucessfully Initialized"+ctx);
+            }}
+}
+</fullsource>
+            <fileName>LoginUserAuthenticateLDAP</fileName>
+            <packageName>Processes.StarterProcess.LoginUser</packageName>
+            <inputData>
+                <row>
+                    <fieldName>Username</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>required</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>Password</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>required</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>LDAP_URL</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>required</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>SearchBase</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>SearchFilter</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+            </inputData>
+            <outputData>
+                <row>
+                    <fieldName>IsAuthenticated</fieldName>
+                    <fieldType>boolean</fieldType>
+                    <fieldRequired>required</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>CommonName</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>EmployeeEmailAddress</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>EmployeeID</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+            </outputData>
+            <byteCode>
+                <class>
+                    <name>LoginUserAuthenticateLDAP</name>
+                    <byteCode>yv66vgAAADQAwgkAOgBqCQA6AGsJADoAbAkAOgBtCQA6AG4JADoAbwkAOgBwCQA6AHEJADoAcgoAOwBzCAB0CAB1BwB2CgANAHMHAHcIAHgKAA0AeQgAeggAewgAfAgAfQgAfgcAfwoAFwCABwCBCgAZAHMKABkAggcAgwgAhAgAhQgAhggAhwgAiAgAiQgAigoAGQCLCwCMAI0LAI4AjwsAjgCQBwCRCgAoAJIJAJMAlAcAlQoAKwBzCgArAJYLAJcAmAoAKwCZCgArAJoKAJsAnAoAOwCaCACdCACeCACfCACgCAChCACiBwCjBwCkBwClAQAIVXNlcm5hbWUBABJMamF2YS9sYW5nL1N0cmluZzsBAAhQYXNzd29yZAEACExEQVBfVVJMAQAKU2VhcmNoQmFzZQEADFNlYXJjaEZpbHRlcgEAD0lzQXV0aGVudGljYXRlZAEAAVoBAApDb21tb25OYW1lAQAURW1wbG95ZWVFbWFpbEFkZHJlc3MBAApFbXBsb3llZUlEAQALZ2V0VXNlcm5hbWUBABQoKUxqYXZhL2xhbmcvU3RyaW5nOwEABENvZGUBAA9MaW5lTnVtYmVyVGFibGUBAAtzZXRVc2VybmFtZQEAFShMamF2YS9sYW5nL1N0cmluZzspVgEAC2dldFBhc3N3b3JkAQALc2V0UGFzc3dvcmQBAAtnZXRMREFQX1VSTAEAC3NldExEQVBfVVJMAQANZ2V0U2VhcmNoQmFzZQEADXNldFNlYXJjaEJhc2UBAA9nZXRTZWFyY2hGaWx0ZXIBAA9zZXRTZWFyY2hGaWx0ZXIBABJnZXRJc0F1dGhlbnRpY2F0ZWQBAAMoKVoBABJzZXRJc0F1dGhlbnRpY2F0ZWQBAAQoWilWAQANZ2V0Q29tbW9uTmFtZQEADXNldENvbW1vbk5hbWUBABdnZXRFbXBsb3llZUVtYWlsQWRkcmVzcwEAF3NldEVtcGxveWVlRW1haWxBZGRyZXNzAQANZ2V0RW1wbG95ZWVJRAEADXNldEVtcGxveWVlSUQBAAY8aW5pdD4BAAMoKVYBAAZpbnZva2UBAA1TdGFja01hcFRhYmxlBwCkBwCDBwB2BwCjAQAKRXhjZXB0aW9ucwEAClNvdXJjZUZpbGUBAB5Mb2dpblVzZXJBdXRoZW50aWNhdGVMREFQLmphdmEMADwAPQwAPgA9DAA/AD0MAEAAPQwAQQA9DABCAEMMAEQAPQwARQA9DABGAD0MAF8AYAEAAAEAIGNvbS5zdW4uam5kaS5sZGFwLkxkYXBDdHhGYWN0b3J5AQATamF2YS91dGlsL0hhc2h0YWJsZQEAFGphdmF4L25hbWluZy9Db250ZXh0AQAbamF2YS5uYW1pbmcuZmFjdG9yeS5pbml0aWFsDACmAKcBABhqYXZhLm5hbWluZy5wcm92aWRlci51cmwBACNqYXZhLm5hbWluZy5zZWN1cml0eS5hdXRoZW50aWNhdGlvbgEABnNpbXBsZQEAHmphdmEubmFtaW5nLnNlY3VyaXR5LnByaW5jaXBhbAEAIGphdmEubmFtaW5nLnNlY3VyaXR5LmNyZWRlbnRpYWxzAQAoamF2YXgvbmFtaW5nL2RpcmVjdG9yeS9Jbml0aWFsRGlyQ29udGV4dAwAXwCoAQAlamF2YXgvbmFtaW5nL2RpcmVjdG9yeS9TZWFyY2hDb250cm9scwwAqQCqAQAQamF2YS9sYW5nL1N0cmluZwEAAmNuAQARZGlzdGluZ3Vpc2hlZE5hbWUBAAJzbgEACWdpdmVubmFtZQEABG1haWwBAA90ZWxlcGhvbmVudW1iZXIBAA5lbXBsb3llZU51bWJlcgwAqwCsBwCtDACuAK8HALAMALEAVgwAsgCzAQAjamF2YXgvbmFtaW5nL2RpcmVjdG9yeS9TZWFyY2hSZXN1bHQMALQAtQcAtgwAtwC4AQAXamF2YS9sYW5nL1N0cmluZ0J1aWxkZXIMALkAugcAuwwAvAC9DAC5AL4MAL8ASAcAwAwAwQBMAQASZGlzdGluZ3Vpc2hlZE5hbWUgAQAKZ2l2ZW5uYW1lIAEAA3NuIAEABW1haWwgAQAQdGVsZXBob25lbnVtYmVyIAEAD2VtcGxveWVlTnVtYmVyIAEAE2phdmEvbGFuZy9FeGNlcHRpb24BADxQcm9jZXNzZXMvU3RhcnRlclByb2Nlc3MvTG9naW5Vc2VyL0xvZ2luVXNlckF1dGhlbnRpY2F0ZUxEQVABABBqYXZhL2xhbmcvT2JqZWN0AQADcHV0AQA4KExqYXZhL2xhbmcvT2JqZWN0O0xqYXZhL2xhbmcvT2JqZWN0OylMamF2YS9sYW5nL09iamVjdDsBABgoTGphdmEvdXRpbC9IYXNodGFibGU7KVYBAA5zZXRTZWFyY2hTY29wZQEABChJKVYBABZzZXRSZXR1cm5pbmdBdHRyaWJ1dGVzAQAWKFtMamF2YS9sYW5nL1N0cmluZzspVgEAIWphdmF4L25hbWluZy9kaXJlY3RvcnkvRGlyQ29udGV4dAEABnNlYXJjaAEAbShMamF2YS9sYW5nL1N0cmluZztMamF2YS9sYW5nL1N0cmluZztMamF2YXgvbmFtaW5nL2RpcmVjdG9yeS9TZWFyY2hDb250cm9sczspTGphdmF4L25hbWluZy9OYW1pbmdFbnVtZXJhdGlvbjsBAB5qYXZheC9uYW1pbmcvTmFtaW5nRW51bWVyYXRpb24BAAdoYXNNb3JlAQAEbmV4dAEAFCgpTGphdmEvbGFuZy9PYmplY3Q7AQANZ2V0QXR0cmlidXRlcwEAJSgpTGphdmF4L25hbWluZy9kaXJlY3RvcnkvQXR0cmlidXRlczsBABBqYXZhL2xhbmcvU3lzdGVtAQADb3V0AQAVTGphdmEvaW8vUHJpbnRTdHJlYW07AQAGYXBwZW5kAQAtKExqYXZhL2xhbmcvU3RyaW5nOylMamF2YS9sYW5nL1N0cmluZ0J1aWxkZXI7AQAhamF2YXgvbmFtaW5nL2RpcmVjdG9yeS9BdHRyaWJ1dGVzAQADZ2V0AQA2KExqYXZhL2xhbmcvU3RyaW5nOylMamF2YXgvbmFtaW5nL2RpcmVjdG9yeS9BdHRyaWJ1dGU7AQAtKExqYXZhL2xhbmcvT2JqZWN0OylMamF2YS9sYW5nL1N0cmluZ0J1aWxkZXI7AQAIdG9TdHJpbmcBABNqYXZhL2lvL1ByaW50U3RyZWFtAQAHcHJpbnRsbgAhADoAOwAAAAkABAA8AD0AAAAEAD4APQAAAAQAPwA9AAAABABAAD0AAAAEAEEAPQAAAAQAQgBDAAAABABEAD0AAAAEAEUAPQAAAAQARgA9AAAAFAABAEcASAABAEkAAAAdAAEAAQAAAAUqtAABsAAAAAEASgAAAAYAAQAAABQAAQBLAEwAAQBJAAAAIgACAAIAAAAGKiu1AAGxAAAAAQBKAAAACgACAAAAFwAFABgAAQBNAEgAAQBJAAAAHQABAAEAAAAFKrQAArAAAAABAEoAAAAGAAEAAAAaAAEATgBMAAEASQAAACIAAgACAAAABiortQACsQAAAAEASgAAAAoAAgAAAB0ABQAeAAEATwBIAAEASQAAAB0AAQABAAAABSq0AAOwAAAAAQBKAAAABgABAAAAIAABAFAATAABAEkAAAAiAAIAAgAAAAYqK7UAA7EAAAABAEoAAAAKAAIAAAAjAAUAJAABAFEASAABAEkAAAAdAAEAAQAAAAUqtAAEsAAAAAEASgAAAAYAAQAAACYAAQBSAEwAAQBJAAAAIgACAAIAAAAGKiu1AASxAAAAAQBKAAAACgACAAAAKQAFACoAAQBTAEgAAQBJAAAAHQABAAEAAAAFKrQABbAAAAABAEoAAAAGAAEAAAAsAAEAVABMAAEASQAAACIAAgACAAAABiortQAFsQAAAAEASgAAAAoAAgAAAC8ABQAwAAEAVQBWAAEASQAAAB0AAQABAAAABSq0AAasAAAAAQBKAAAABgABAAAAMgABAFcAWAABAEkAAAAiAAIAAgAAAAYqG7UABrEAAAABAEoAAAAKAAIAAAA1AAUANgABAFkASAABAEkAAAAdAAEAAQAAAAUqtAAHsAAAAAEASgAAAAYAAQAAADgAAQBaAEwAAQBJAAAAIgACAAIAAAAGKiu1AAexAAAAAQBKAAAACgACAAAAOwAFADwAAQBbAEgAAQBJAAAAHQABAAEAAAAFKrQACLAAAAABAEoAAAAGAAEAAAA+AAEAXABMAAEASQAAACIAAgACAAAABiortQAIsQAAAAEASgAAAAoAAgAAAEEABQBCAAEAXQBIAAEASQAAAB0AAQABAAAABSq0AAmwAAAAAQBKAAAABgABAAAARAABAF4ATAABAEkAAAAiAAIAAgAAAAYqK7UACbEAAAABAEoAAAAKAAIAAABHAAUASAABAF8AYAABAEkAAAB6AAIAAQAAADoqtwAKKhILtQABKhILtQACKhILtQADKhILtQAEKhILtQAFKgO1AAYqEgu1AAcqEgu1AAgqEgu1AAmxAAAAAQBKAAAALgALAAAASgAEAAoACgALABAADAAWAA0AHAAOACIADwAnABAALQARADMAEgA5AEsAAQBhAGAAAgBJAAACuAAEAAwAAAHuEgxMKrQAA00qtAABTiq0AAI6BLsADVm3AA46BRkFEhArtgARVxkFEhIstgARVxkFEhMSFLYAEVcZBRIVLbYAEVcZBRIWGQS2ABFXuwAXWRkFtwAYOgYZBjoHKgS1AAa7ABlZtwAaOggZCAW2ABsQB70AHFkDEh1TWQQSHlNZBRIfU1kGEiBTWQcSIVNZCBIiU1kQBhIjUzoJGQgZCbYAJBkHKrQABCq0AAUZCLkAJQQAOgoZCrkAJgEAmQEpGQq5ACcBAMAAKLYAKToLsgAquwArWbcALBIdtgAtGQsSHbkALgIAtgAvtgAwtgAxKhkLEh25AC4CALYAMrUAB7IAKrsAK1m3ACwSM7YALRkLEh65AC4CALYAL7YAMLYAMbIAKrsAK1m3ACwSNLYALRkLEiC5AC4CALYAL7YAMLYAMbIAKrsAK1m3ACwSNbYALRkLEh+5AC4CALYAL7YAMLYAMbIAKrsAK1m3ACwSNrYALRkLEiG5AC4CALYAL7YAMLYAMSoZCxIhuQAuAgC2ADK1AAiyACq7ACtZtwAsEje2AC0ZCxIiuQAuAgC2AC+2ADC2ADGyACq7ACtZtwAsEji2AC0ZCxIjuQAuAgC2AC+2ADC2ADEqGQsSI7kALgIAtgAytQAJpwAKOgYqA7UABrEAAQBLAeMB5gA5AAIASgAAAIoAIgAAAFkAAwBaAAgAWwANAFwAEwBfABwAYAAlAGEALgBiADgAYwBBAGQASwBoAFYAagBaAGwAXwBuAGgAbwBuAHAAmQBxAKAAdQCzAHYAvQB3AMwAeADtAHkA/QB6AR4AewE/AHwBYAB9AYEAfgGRAH8BsgCAAdMAgQHjAIgB5gCEAegAhQHtAIgAYgAAACAAA/8B4wAGBwBjBwBkBwBkBwBkBwBkBwBlAABCBwBmBgBnAAAABAABADkAAQBoAAAAAgBp</byteCode>
+                </class>
+            </byteCode>
+        </config>
+        <pd:inputBindings>
+            <javaCodeActivityInput>
+                <Username>
+                    <xsl:value-of select="$Parse-JSON/ns1:ActivityOutputClass/ns:UserLoginRequest/ns:Username"/>
+                </Username>
+                <Password>
+                    <xsl:value-of select="$Parse-JSON/ns1:ActivityOutputClass/ns:UserLoginRequest/ns:Password"/>
+                </Password>
+                <LDAP_URL>
+                    <xsl:value-of select="&quot;ldap://tibco.com:3268&quot;"/>
+                </LDAP_URL>
+                <SearchBase>
+                    <xsl:value-of select="&quot;DC=tibco,DC=com&quot;"/>
+                </SearchBase>
+                <SearchFilter>
+                    <xsl:value-of select="concat(&quot;sAMAccountName=&quot;,substring-before($Parse-JSON/ns1:ActivityOutputClass/ns:UserLoginRequest/ns:Username,&quot;@&quot;))"/>
+                </SearchFilter>
+            </javaCodeActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Parse JSON">
+        <pd:type>com.tibco.plugin.json.activities.JSONParserActivity</pd:type>
+        <pd:resourceType>ae.activities.JSONParserActivity</pd:resourceType>
+        <pd:x>205</pd:x>
+        <pd:y>144</pd:y>
+        <config>
+            <SchemaType>xsdType</SchemaType>
+            <BadgerfishCheck>false</BadgerfishCheck>
+            <ActivityOutputEditor ref="ns:UserLoginRequest"/>
+        </config>
+        <pd:inputBindings>
+            <ns1:ActivityInputClass>
+                <jsonString>
+                    <xsl:value-of select="$Start/jsonRequest"/>
+                </jsonString>
+            </ns1:ActivityInputClass>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Render JSON">
+        <pd:type>com.tibco.plugin.json.activities.JSONRenderActivity</pd:type>
+        <pd:resourceType>ae.activities.JSONRenderActivity</pd:resourceType>
+        <pd:x>502</pd:x>
+        <pd:y>246</pd:y>
+        <config>
+            <SchemaType>xsdType</SchemaType>
+            <BadgerfishCheck>false</BadgerfishCheck>
+            <ActivityInputEditor>
+                <xsd:element name="group">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element ref="ns:Response"/>
+                            <xsd:element ref="ns:UserID"/>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+            </ActivityInputEditor>
+        </config>
+        <pd:inputBindings>
+            <ns1:ActivityInputClass>
+                <xsl:choose>
+                    <xsl:when test="$JDBC-Query/resultSet/Record[1]/COUNT>0">
+                        <group>
+                            <ns:Response>
+                                <xsl:value-of select="&quot;true&quot;"/>
+                            </ns:Response>
+                            <ns:UserID>
+                                <xsl:value-of select="$Parse-JSON/ns1:ActivityOutputClass/ns:UserLoginRequest/ns:Username"/>
+                            </ns:UserID>
+                        </group>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <group>
+                            <ns:Response>
+                                <xsl:value-of select="$AuthenticateLDAP/javaCodeActivityOutput/IsAuthenticated"/>
+                            </ns:Response>
+                            <ns:UserID>
+                                <xsl:value-of select="substring-after($AuthenticateLDAP/javaCodeActivityOutput/EmployeeID, ': ')"/>
+                            </ns:UserID>
+                        </group>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </ns1:ActivityInputClass>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="JDBC Query">
+        <pd:type>com.tibco.plugin.jdbc.JDBCQueryActivity</pd:type>
+        <pd:resourceType>ae.activities.JDBCQueryActivity</pd:resourceType>
+        <pd:x>293</pd:x>
+        <pd:y>248</pd:y>
+        <config>
+            <timeout>100</timeout>
+            <commit>false</commit>
+            <maxRows>100</maxRows>
+            <emptyStrAsNil>false</emptyStrAsNil>
+            <statement>select count(*) from TIB_USERS where username=? and password=?</statement>
+            <jdbcSharedConfig>/SharedResources/Connections/Database/HR_DB.sharedjdbc</jdbcSharedConfig>
+            <Prepared_Param_DataType>
+                <parameter>
+                    <parameterName>username</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+                <parameter>
+                    <parameterName>password</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+            </Prepared_Param_DataType>
+            <oraObjects/>
+            <oraTables/>
+            <QueryOutputCachedSchemaColumns>COUNT</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>2</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>NUMBER</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+        </config>
+        <pd:inputBindings>
+            <jdbcQueryActivityInput>
+                <username>
+                    <xsl:value-of select="$Parse-JSON/ns1:ActivityOutputClass/ns:UserLoginRequest/ns:Username"/>
+                </username>
+                <password>
+                    <xsl:value-of select="$Parse-JSON/ns1:ActivityOutputClass/ns:UserLoginRequest/ns:Password"/>
+                </password>
+            </jdbcQueryActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:transition>
+        <pd:from>Start</pd:from>
+        <pd:to>Parse JSON</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Parse JSON</pd:from>
+        <pd:to>JDBC Query</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>AuthenticateLDAP</pd:from>
+        <pd:to>Render JSON</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Render JSON</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>JDBC Query</pd:from>
+        <pd:to>AuthenticateLDAP</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>otherwise</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>JDBC Query</pd:from>
+        <pd:to>Render JSON</pd:to>
+        <pd:xpathDescription>HEPLs</pd:xpathDescription>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>xpath</pd:conditionType>
+        <pd:xpath>$JDBC-Query/resultSet/Record[1]/COUNT&gt;0</pd:xpath>
+    </pd:transition>
+</pd:ProcessDefinition>

@@ -1,0 +1,21 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<repository xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance" xmlns = "http://www.tibco.com/xmlns/repo/types/2002">
+	<globalVariables>
+		<globalVariable>
+			<name>XMLFilename</name>
+			<value>C:\Users\nkokate\Downloads\201-BPMBasics-Metadata.xml</value>
+			<deploymentSettable>true</deploymentSettable>
+			<serviceSettable>false</serviceSettable>
+			<type>String</type>
+			<modTime>1503435883227</modTime>
+		</globalVariable>
+		<globalVariable>
+			<name>XMLPollingInterval</name>
+			<value>5</value>
+			<deploymentSettable>true</deploymentSettable>
+			<serviceSettable>false</serviceSettable>
+			<type>String</type>
+			<modTime>1500983131986</modTime>
+		</globalVariable>
+	</globalVariables>
+</repository>

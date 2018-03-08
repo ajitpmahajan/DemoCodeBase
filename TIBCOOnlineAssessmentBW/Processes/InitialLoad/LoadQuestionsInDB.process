@@ -1,0 +1,539 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pd:ProcessDefinition xmlns:pfx="http://www.tibco.com/schemas/TIBCO/SharedResources/Schema/TibcoOnlineAssessmentSchema.xsd" xmlns:ns="http://www.tibco.com/namespaces/tnt/plugins/file" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns2="http://www.tibco.com/pe/DeployedVarsType" xmlns:tib="http://www.tibco.com/bw/xslt/custom-functions" xmlns:ns1="http://www.tibco.com/pe/EngineTypes" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ns3="http://www.tibco.com/namespaces/tnt/plugins/file/v2" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:pd="http://xmlns.tibco.com/bw/process/2003" xmlns:ns13="http://www.tibco.com/namespaces/tnt/plugins/mail" xmlns:ns12="http://www.tibco.com/pe/WriteToLogActivitySchema" xmlns:ns22="http://xmlns.tibco.com/body">
+    <xsd:import namespace="http://www.tibco.com/schemas/TIBCO/SharedResources/Schema/TibcoOnlineAssessmentSchema.xsd" schemaLocation="/SharedResources/Schema/TIBCOOnlineAssessmentSchema.xsd"/>
+    <pd:name>Processes/InitialLoad/LoadQuestionsInDB.process</pd:name>
+    <pd:startName>File Poller</pd:startName>
+    <pd:startX>0</pd:startX>
+    <pd:startY>0</pd:startY>
+    <pd:returnBindings/>
+    <pd:starter name="File Poller">
+        <pd:type>com.tibco.plugin.file.FileEventSource</pd:type>
+        <pd:resourceType>ae.activities.FileEventSourceResource</pd:resourceType>
+        <pd:x>84</pd:x>
+        <pd:y>147</pd:y>
+        <config>
+            <pollInterval>%%AssessmentApp/Processes/LoadTestDetailsInDB/XMLPollingInterval%%</pollInterval>
+            <createEvent>true</createEvent>
+            <modifyEvent>true</modifyEvent>
+            <deleteEvent>true</deleteEvent>
+            <mode>files-and-directories</mode>
+            <encoding>text</encoding>
+            <sortby>File Name</sortby>
+            <sortorder>descending</sortorder>
+            <fileName>%%AssessmentApp/Processes/LoadTestDetailsInDB/XMLFilename%%</fileName>
+            <includeCurrent>true</includeCurrent>
+        </config>
+        <pd:inputBindings/>
+    </pd:starter>
+    <pd:endName>End</pd:endName>
+    <pd:endX>1402</pd:endX>
+    <pd:endY>193</pd:endY>
+    <pd:errorSchemas/>
+    <pd:processVariables/>
+    <pd:targetNamespace>http://xmlns.example.com/1404758150122</pd:targetNamespace>
+    <pd:group name="Group">
+        <pd:type>com.tibco.pe.core.LoopGroup</pd:type>
+        <pd:resourceType>ae.process.group</pd:resourceType>
+        <pd:x>569</pd:x>
+        <pd:y>73</pd:y>
+        <pd:width>536</pd:width>
+        <pd:height>140</pd:height>
+        <pd:collapsedWidth>57</pd:collapsedWidth>
+        <pd:collapsedHeight>70</pd:collapsedHeight>
+        <pd:groupVariables/>
+        <pd:joinToggle>inherit</pd:joinToggle>
+        <config>
+            <pd:groupType>inputLoop</pd:groupType>
+            <pd:serializable>false</pd:serializable>
+            <pd:over>$Parse-Data/Output/Rows/Record</pd:over>
+            <pd:iterationElementSlot>curr</pd:iterationElementSlot>
+            <pd:indexSlot>i</pd:indexSlot>
+            <pd:activityOutputName/>
+            <pd:accumulateOutput>false</pd:accumulateOutput>
+        </config>
+        <pd:inputBindings/>
+        <pd:expanded>true</pd:expanded>
+        <pd:transition>
+            <pd:from>start</pd:from>
+            <pd:to>JDBC Query</pd:to>
+            <pd:lineType>Default</pd:lineType>
+            <pd:lineColor>-16777216</pd:lineColor>
+            <pd:conditionType>always</pd:conditionType>
+        </pd:transition>
+        <pd:transition>
+            <pd:from>InsertQuestionsAnswers</pd:from>
+            <pd:to>end</pd:to>
+            <pd:lineType>Default</pd:lineType>
+            <pd:lineColor>-16777216</pd:lineColor>
+            <pd:conditionType>always</pd:conditionType>
+        </pd:transition>
+        <pd:transition>
+            <pd:from>InsertQuestions</pd:from>
+            <pd:to>InsertQuestionsAnswers</pd:to>
+            <pd:lineType>Multiple Bends</pd:lineType>
+            <pd:lineColor>-16777216</pd:lineColor>
+            <pd:conditionType>always</pd:conditionType>
+        </pd:transition>
+        <pd:transition>
+            <pd:from>JDBC Query</pd:from>
+            <pd:to>InsertQuestions</pd:to>
+            <pd:lineType>Default</pd:lineType>
+            <pd:lineColor>-16777216</pd:lineColor>
+            <pd:conditionType>always</pd:conditionType>
+        </pd:transition>
+        <pd:activity name="InsertQuestions">
+            <pd:type>com.tibco.plugin.jdbc.JDBCUpdateActivity</pd:type>
+            <pd:resourceType>ae.activities.JDBCUpdateActivity</pd:resourceType>
+            <pd:x>836</pd:x>
+            <pd:y>152</pd:y>
+            <config>
+                <timeout>0</timeout>
+                <commit>false</commit>
+                <emptyStrAsNil>true</emptyStrAsNil>
+                <statement>  Insert into TIB_QUESTIONS
+   (QUESTIONID, QUESTION, TESTID, IS_ACTIVE, SEQID)
+ Values
+   (?, ?, ?, ?,?)</statement>
+                <jdbcSharedConfig>/SharedResources/Connections/Database/HR_DB.sharedjdbc</jdbcSharedConfig>
+                <Prepared_Param_DataType>
+                    <parameter>
+                        <parameterName>QUESTIONID</parameterName>
+                        <dataType>INTEGER</dataType>
+                    </parameter>
+                    <parameter>
+                        <parameterName>QUESTION</parameterName>
+                        <dataType>VARCHAR</dataType>
+                    </parameter>
+                    <parameter>
+                        <parameterName>TESTID</parameterName>
+                        <dataType>INTEGER</dataType>
+                    </parameter>
+                    <parameter>
+                        <parameterName>IS_ACTIVE</parameterName>
+                        <dataType>VARCHAR</dataType>
+                    </parameter>
+                    <parameter>
+                        <parameterName>SEQID</parameterName>
+                        <dataType>INTEGER</dataType>
+                    </parameter>
+                </Prepared_Param_DataType>
+            </config>
+            <pd:inputBindings>
+                <jdbcUpdateActivityInput>
+                    <QUESTIONID>
+                        <xsl:choose>
+                            <xsl:when test="exists(round($JDBC-Query/resultSet/Record[1]/QUES_SEQ))">
+                                <xsl:value-of select="round($JDBC-Query/resultSet/Record[1]/QUES_SEQ)"/>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:attribute name="xsi:nil">true</xsl:attribute>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </QUESTIONID>
+                    <QUESTION>
+                        <xsl:value-of select="$curr/Record/Question"/>
+                    </QUESTION>
+                    <TESTID>
+                        <xsl:value-of select="$Parse-XML/pfx:TestMetaData/pfx:TestID"/>
+                    </TESTID>
+                    <IS_ACTIVE>
+                        <xsl:value-of select="&quot;Y&quot;"/>
+                    </IS_ACTIVE>
+                    <SEQID>
+                        <xsl:value-of select="$curr/Record/SeqID"/>
+                    </SEQID>
+                </jdbcUpdateActivityInput>
+            </pd:inputBindings>
+        </pd:activity>
+        <pd:activity name="InsertQuestionsAnswers">
+            <pd:type>com.tibco.plugin.jdbc.JDBCUpdateActivity</pd:type>
+            <pd:resourceType>ae.activities.JDBCUpdateActivity</pd:resourceType>
+            <pd:x>978</pd:x>
+            <pd:y>152</pd:y>
+            <config>
+                <timeout>0</timeout>
+                <commit>false</commit>
+                <emptyStrAsNil>true</emptyStrAsNil>
+                <statement>   Insert into TIB_QUESTION_ANSWERS
+   (ANSWERID, QUESTIONID, ANSWER, IS_RIGHT_ANSWER)
+ Values
+   (TIB_QUESTION_ANSWERS_SEQ.nextval, ?, ?, ?)</statement>
+                <jdbcSharedConfig>/SharedResources/Connections/Database/HR_DB.sharedjdbc</jdbcSharedConfig>
+                <Prepared_Param_DataType>
+                    <parameter>
+                        <parameterName>QUESTIONID</parameterName>
+                        <dataType>VARCHAR</dataType>
+                    </parameter>
+                    <parameter>
+                        <parameterName>ANSWER</parameterName>
+                        <dataType>VARCHAR</dataType>
+                    </parameter>
+                    <parameter>
+                        <parameterName>IS_RIGHT_ANSWER</parameterName>
+                        <dataType>VARCHAR</dataType>
+                    </parameter>
+                </Prepared_Param_DataType>
+                <batchUpdate>true</batchUpdate>
+            </config>
+            <pd:inputBindings>
+                <jdbcUpdateActivityInput>
+                    <Record>
+                        <QUESTIONID>
+                            <xsl:value-of select="$JDBC-Query/resultSet/Record[1]/QUES_SEQ"/>
+                        </QUESTIONID>
+                        <ANSWER>
+                            <xsl:value-of select="$curr/Record/Answer1"/>
+                        </ANSWER>
+                        <xsl:choose>
+                            <xsl:when test="$curr/Record/CorrectAnswer=1">
+                                <IS_RIGHT_ANSWER>
+                                    <xsl:value-of select="&quot;Y&quot;"/>
+                                </IS_RIGHT_ANSWER>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <IS_RIGHT_ANSWER>
+                                    <xsl:value-of select="&quot;N&quot;"/>
+                                </IS_RIGHT_ANSWER>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </Record>
+                    <Record>
+                        <QUESTIONID>
+                            <xsl:value-of select="$JDBC-Query/resultSet/Record[1]/QUES_SEQ"/>
+                        </QUESTIONID>
+                        <ANSWER>
+                            <xsl:value-of select="$curr/Record/Answer2"/>
+                        </ANSWER>
+                        <xsl:choose>
+                            <xsl:when test="$curr/Record/CorrectAnswer=2">
+                                <IS_RIGHT_ANSWER>
+                                    <xsl:value-of select="&quot;Y&quot;"/>
+                                </IS_RIGHT_ANSWER>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <IS_RIGHT_ANSWER>
+                                    <xsl:value-of select="&quot;N&quot;"/>
+                                </IS_RIGHT_ANSWER>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </Record>
+                    <Record>
+                        <QUESTIONID>
+                            <xsl:value-of select="$JDBC-Query/resultSet/Record[1]/QUES_SEQ"/>
+                        </QUESTIONID>
+                        <ANSWER>
+                            <xsl:value-of select="$curr/Record/Answer3"/>
+                        </ANSWER>
+                        <xsl:choose>
+                            <xsl:when test="$curr/Record/CorrectAnswer=3">
+                                <IS_RIGHT_ANSWER>
+                                    <xsl:value-of select="&quot;Y&quot;"/>
+                                </IS_RIGHT_ANSWER>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <IS_RIGHT_ANSWER>
+                                    <xsl:value-of select="&quot;N&quot;"/>
+                                </IS_RIGHT_ANSWER>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </Record>
+                    <Record>
+                        <QUESTIONID>
+                            <xsl:value-of select="$JDBC-Query/resultSet/Record[1]/QUES_SEQ"/>
+                        </QUESTIONID>
+                        <ANSWER>
+                            <xsl:value-of select="$curr/Record/Answer4"/>
+                        </ANSWER>
+                        <xsl:choose>
+                            <xsl:when test="$curr/Record/CorrectAnswer=4">
+                                <IS_RIGHT_ANSWER>
+                                    <xsl:value-of select="&quot;Y&quot;"/>
+                                </IS_RIGHT_ANSWER>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <IS_RIGHT_ANSWER>
+                                    <xsl:value-of select="&quot;N&quot;"/>
+                                </IS_RIGHT_ANSWER>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </Record>
+                </jdbcUpdateActivityInput>
+            </pd:inputBindings>
+        </pd:activity>
+        <pd:activity name="JDBC Query">
+            <pd:type>com.tibco.plugin.jdbc.JDBCQueryActivity</pd:type>
+            <pd:resourceType>ae.activities.JDBCQueryActivity</pd:resourceType>
+            <pd:x>684</pd:x>
+            <pd:y>149</pd:y>
+            <config>
+                <timeout>10</timeout>
+                <commit>false</commit>
+                <maxRows>100</maxRows>
+                <emptyStrAsNil>false</emptyStrAsNil>
+                <jdbcSharedConfig>/SharedResources/Connections/Database/HR_DB.sharedjdbc</jdbcSharedConfig>
+                <statement>select TIB_QUESTIONS_SEQ.nextval AS ques_seq from DUAL 
+</statement>
+                <oraObjects/>
+                <oraTables/>
+                <QueryOutputCachedSchemaColumns>QUES_SEQ</QueryOutputCachedSchemaColumns>
+                <QueryOutputCachedSchemaDataTypes>2</QueryOutputCachedSchemaDataTypes>
+                <QueryOutputCachedSchemaDataTypesName>NUMBER</QueryOutputCachedSchemaDataTypesName>
+                <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+            </config>
+            <pd:inputBindings>
+                <jdbcQueryActivityInput/>
+            </pd:inputBindings>
+        </pd:activity>
+    </pd:group>
+    <pd:group name="InsertSectionDetails">
+        <pd:type>com.tibco.pe.core.LoopGroup</pd:type>
+        <pd:resourceType>ae.process.group</pd:resourceType>
+        <pd:x>686</pd:x>
+        <pd:y>250</pd:y>
+        <pd:width>169</pd:width>
+        <pd:height>140</pd:height>
+        <pd:collapsedWidth>57</pd:collapsedWidth>
+        <pd:collapsedHeight>70</pd:collapsedHeight>
+        <pd:groupVariables/>
+        <pd:joinToggle>inherit</pd:joinToggle>
+        <config>
+            <pd:groupType>inputLoop</pd:groupType>
+            <pd:serializable>false</pd:serializable>
+            <pd:over>$Parse-XML/pfx:TestMetaData/pfx:SectionDetails</pd:over>
+            <pd:iterationElementSlot>Section</pd:iterationElementSlot>
+            <pd:indexSlot>j</pd:indexSlot>
+            <pd:activityOutputName/>
+            <pd:accumulateOutput>false</pd:accumulateOutput>
+        </config>
+        <pd:inputBindings/>
+        <pd:expanded>true</pd:expanded>
+        <pd:transition>
+            <pd:from>start</pd:from>
+            <pd:to>InsertTestMetaData</pd:to>
+            <pd:lineType>Default</pd:lineType>
+            <pd:lineColor>-16777216</pd:lineColor>
+            <pd:conditionType>always</pd:conditionType>
+        </pd:transition>
+        <pd:transition>
+            <pd:from>InsertTestMetaData</pd:from>
+            <pd:to>end</pd:to>
+            <pd:lineType>Default</pd:lineType>
+            <pd:lineColor>-16777216</pd:lineColor>
+            <pd:conditionType>always</pd:conditionType>
+        </pd:transition>
+        <pd:activity name="InsertTestMetaData">
+            <pd:type>com.tibco.plugin.jdbc.JDBCUpdateActivity</pd:type>
+            <pd:resourceType>ae.activities.JDBCUpdateActivity</pd:resourceType>
+            <pd:x>765</pd:x>
+            <pd:y>329</pd:y>
+            <config>
+                <timeout>0</timeout>
+                <commit>false</commit>
+                <emptyStrAsNil>true</emptyStrAsNil>
+                <statement>  Insert into TIB_TEST_METADATA
+   (TESTID, SEQID, QUESTIONS_COUNT, MARKS)
+ Values
+   (?, ?, ?, ?)</statement>
+                <jdbcSharedConfig>/SharedResources/Connections/Database/HR_DB.sharedjdbc</jdbcSharedConfig>
+                <Prepared_Param_DataType>
+                    <parameter>
+                        <parameterName>TESTID</parameterName>
+                        <dataType>VARCHAR</dataType>
+                    </parameter>
+                    <parameter>
+                        <parameterName>SEQID</parameterName>
+                        <dataType>VARCHAR</dataType>
+                    </parameter>
+                    <parameter>
+                        <parameterName>QUESTIONS_COUNT</parameterName>
+                        <dataType>VARCHAR</dataType>
+                    </parameter>
+                    <parameter>
+                        <parameterName>MARKS</parameterName>
+                        <dataType>VARCHAR</dataType>
+                    </parameter>
+                </Prepared_Param_DataType>
+            </config>
+            <pd:inputBindings>
+                <jdbcUpdateActivityInput>
+                    <TESTID>
+                        <xsl:value-of select="$Parse-XML/pfx:TestMetaData/pfx:TestID"/>
+                    </TESTID>
+                    <SEQID>
+                        <xsl:value-of select="$Section/pfx:SectionDetails/pfx:SeqId"/>
+                    </SEQID>
+                    <QUESTIONS_COUNT>
+                        <xsl:value-of select="$Section/pfx:SectionDetails/pfx:NoOfQts"/>
+                    </QUESTIONS_COUNT>
+                    <MARKS>
+                        <xsl:value-of select="$Section/pfx:SectionDetails/pfx:Marks"/>
+                    </MARKS>
+                </jdbcUpdateActivityInput>
+            </pd:inputBindings>
+        </pd:activity>
+    </pd:group>
+    <pd:activity name="InsertTestDetails">
+        <pd:type>com.tibco.plugin.jdbc.JDBCUpdateActivity</pd:type>
+        <pd:resourceType>ae.activities.JDBCUpdateActivity</pd:resourceType>
+        <pd:x>476</pd:x>
+        <pd:y>328</pd:y>
+        <config>
+            <timeout>0</timeout>
+            <commit>false</commit>
+            <emptyStrAsNil>true</emptyStrAsNil>
+            <statement>  Insert into TIB_TEST_DETAILS
+   (TESTID, TESTNAME, ACTIVE, TESTDURATION, TOTAL_MARKS, PASSING_MARKS, NO_OF_QTS)
+ Values
+   (?, ?, ?, ?,?,?,?)</statement>
+            <jdbcSharedConfig>/SharedResources/Connections/Database/HR_DB.sharedjdbc</jdbcSharedConfig>
+            <Prepared_Param_DataType>
+                <parameter>
+                    <parameterName>TESTID</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+                <parameter>
+                    <parameterName>TESTNAME</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+                <parameter>
+                    <parameterName>IS_ACTIVE</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+                <parameter>
+                    <parameterName>TESTDURATION</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+                <parameter>
+                    <parameterName>TOTAL_MARKS</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+                <parameter>
+                    <parameterName>PASSING_MARKS</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+                <parameter>
+                    <parameterName>NO_OF_QTS</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+            </Prepared_Param_DataType>
+        </config>
+        <pd:inputBindings>
+            <jdbcUpdateActivityInput>
+                <TESTID>
+                    <xsl:value-of select="$Parse-XML/pfx:TestMetaData/pfx:TestID"/>
+                </TESTID>
+                <TESTNAME>
+                    <xsl:value-of select="$Parse-XML/pfx:TestMetaData/pfx:TestName"/>
+                </TESTNAME>
+                <IS_ACTIVE>
+                    <xsl:value-of select="&quot;Y&quot;"/>
+                </IS_ACTIVE>
+                <TESTDURATION>
+                    <xsl:value-of select="$Parse-XML/pfx:TestMetaData/pfx:TestDuration"/>
+                </TESTDURATION>
+                <TOTAL_MARKS>
+                    <xsl:value-of select="sum(for $var in $Parse-XML/pfx:TestMetaData/pfx:SectionDetails return $var/pfx:Marks * $var/pfx:NoOfQts)"/>
+                </TOTAL_MARKS>
+                <PASSING_MARKS>
+                    <xsl:value-of select="$Parse-XML/pfx:TestMetaData/pfx:PassingMarks"/>
+                </PASSING_MARKS>
+                <NO_OF_QTS>
+                    <xsl:value-of select="sum($Parse-XML/pfx:TestMetaData/pfx:SectionDetails/pfx:NoOfQts)"/>
+                </NO_OF_QTS>
+            </jdbcUpdateActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Parse Data">
+        <pd:type>com.tibco.plugin.parse.ParseActivity</pd:type>
+        <pd:resourceType>ae.activities.ParseActivity</pd:resourceType>
+        <pd:x>415</pd:x>
+        <pd:y>147</pd:y>
+        <config>
+            <InputType>File</InputType>
+            <Encoding>UTF8</Encoding>
+            <ParseSharedConfig>/SharedResources/DataFormat/QuestionsDataFormat.sharedparse</ParseSharedConfig>
+            <SpecifyStartRecord>true</SpecifyStartRecord>
+            <SkipBlankLines>true</SkipBlankLines>
+            <ContinueonError>true</ContinueonError>
+        </config>
+        <pd:inputBindings>
+            <Input>
+                <fileName>
+                    <xsl:value-of select="concat($File-Poller/ns:EventSourceOuputTextClass/fileInfo/location,'\',$Parse-XML/pfx:TestMetaData/pfx:FileName)"/>
+                </fileName>
+                <startRecord>
+                    <xsl:value-of select="2"/>
+                </startRecord>
+                <noOfRecords>
+                    <xsl:value-of select="&quot;-1&quot;"/>
+                </noOfRecords>
+            </Input>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Parse XML">
+        <pd:type>com.tibco.plugin.xml.XMLParseActivity</pd:type>
+        <pd:resourceType>ae.activities.XMLParseActivity</pd:resourceType>
+        <pd:x>216</pd:x>
+        <pd:y>147</pd:y>
+        <config>
+            <inputStyle>text</inputStyle>
+            <xsdVersion>default</xsdVersion>
+            <validateOutput>true</validateOutput>
+            <term ref="pfx:TestMetaData"/>
+        </config>
+        <pd:inputBindings>
+            <xmlString>
+                <xsl:value-of select="$File-Poller/ns:EventSourceOuputTextClass/fileContent/textContent"/>
+            </xmlString>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:transition>
+        <pd:from>File Poller</pd:from>
+        <pd:to>Parse XML</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Group</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Parse Data</pd:from>
+        <pd:to>Group</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Parse XML</pd:from>
+        <pd:to>InsertTestDetails</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>InsertTestDetails</pd:from>
+        <pd:to>InsertSectionDetails</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>InsertSectionDetails</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Parse XML</pd:from>
+        <pd:to>Parse Data</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+</pd:ProcessDefinition>

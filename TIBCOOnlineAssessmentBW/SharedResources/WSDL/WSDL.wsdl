@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:ns="http://www.tibco.com/schemas/TIBCO/SharedResources/Schema/TibcoOnlineAssessmentSchema.xsd" xmlns:tns="http://xmlns.example.com/1484417652447" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://xmlns.example.com/1484417652447">
+    <import namespace="http://www.tibco.com/schemas/TIBCO/SharedResources/Schema/TibcoOnlineAssessmentSchema.xsd" location="../Schema/TIBCOOnlineAssessmentSchema.xsd"/>
+    <message name="UserLoginRequestMessage">
+        <part name="part1" element="ns:UserLoginRequest"/>
+    </message>
+    <message name="UserLoginResponseMessage">
+        <part name="Response" type="xsd:string"/>
+    </message>
+    <message name="RegisterUserRequestMessage">
+        <part name="part1" element="ns:RegisterUserRequest"/>
+    </message>
+    <message name="GetRandomQuestionRequestMessage">
+        <part name="part1" element="ns:GetRandomQuestionRequest"/>
+    </message>
+    <message name="GetRandomQuestionResponseMessage">
+        <part name="part1" element="ns:GetRandomQuestionResponse"/>
+    </message>
+    <message name="SetQuestionAnswerRequestMessage">
+        <part name="part1" element="ns:SetQuestionAnswerRequest"/>
+    </message>
+    <message name="GetUserTestResultRequestMessage">
+        <part name="part1" element="ns:GetUserTestResultRequest"/>
+    </message>
+    <message name="GetUserTestResultResponseMessage">
+        <part name="part1" element="ns:GetUserTestResultResponse"/>
+    </message>
+    <message name="SetQuestionAnswerResponseMessage">
+        <part name="Response" type="xsd:string"/>
+    </message>
+    <message name="RegisterUserResponseMessage">
+        <part name="Response" type="xsd:string"/>
+    </message>
+    <portType name="UserPortType">
+        <operation name="LoginUser">
+            <input message="tns:UserLoginRequestMessage"/>
+            <output message="tns:UserLoginResponseMessage"/>
+        </operation>
+        <operation name="RegisterUser">
+            <input message="tns:RegisterUserRequestMessage"/>
+            <output message="tns:RegisterUserResponseMessage"/>
+        </operation>
+    </portType>
+    <portType name="QuestionPortType">
+        <operation name="GetTestResult">
+            <input message="tns:GetUserTestResultRequestMessage"/>
+            <output message="tns:GetUserTestResultResponseMessage"/>
+        </operation>
+        <operation name="SetQuestionAnswers">
+            <input message="tns:SetQuestionAnswerRequestMessage"/>
+            <output message="tns:SetQuestionAnswerResponseMessage"/>
+        </operation>
+        <operation name="GetRandomQuestions">
+            <input message="tns:GetRandomQuestionRequestMessage"/>
+            <output message="tns:GetRandomQuestionResponseMessage"/>
+        </operation>
+    </portType>
+</definitions>

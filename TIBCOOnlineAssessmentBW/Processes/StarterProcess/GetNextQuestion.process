@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pd:ProcessDefinition xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:pfx="http://xmlns.example.com/1484417652447" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:pd="http://xmlns.tibco.com/bw/process/2003" xmlns:ns="http://www.tibco.com/schemas/TIBCO/SharedResources/Schema/TibcoOnlineAssessmentSchema.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://www.tibco.com/namespaces/tnt/plugins/json" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <xsd:import namespace="http://www.tibco.com/schemas/TIBCO/SharedResources/Schema/TibcoOnlineAssessmentSchema.xsd" schemaLocation="/SharedResources/Schema/TIBCOOnlineAssessmentSchema.xsd"/>
+    <wsdl:import namespace="http://xmlns.example.com/1484417652447" location="/SharedResources/WSDL/WSDL.wsdl"/>
+    <pd:name>Processes/StarterProcess/GetNextQuestion.process</pd:name>
+    <pd:startName>Start</pd:startName>
+    <pd:startType>
+        <xsd:element name="jsonRequest" type="xsd:string"/>
+    </pd:startType>
+    <pd:startX>93</pd:startX>
+    <pd:startY>167</pd:startY>
+    <pd:returnBindings>
+        <jsonResponse>
+            <xsl:value-of select="$Render-JSON/ns1:ActivityOutputClass/jsonString"/>
+        </jsonResponse>
+    </pd:returnBindings>
+    <pd:endName>End</pd:endName>
+    <pd:endType>
+        <xsd:element name="jsonResponse" type="xsd:string"/>
+    </pd:endType>
+    <pd:endX>997</pd:endX>
+    <pd:endY>167</pd:endY>
+    <pd:errorSchemas/>
+    <pd:processVariables/>
+    <pd:targetNamespace>http://xmlns.example.com/1484075326266</pd:targetNamespace>
+    <pd:activity name="CheckIfAnswerExists">
+        <pd:type>com.tibco.plugin.jdbc.JDBCQueryActivity</pd:type>
+        <pd:resourceType>ae.activities.JDBCQueryActivity</pd:resourceType>
+        <pd:x>377</pd:x>
+        <pd:y>167</pd:y>
+        <config>
+            <timeout>%%WishApp/Database/JDBCParameters/Timeout%%</timeout>
+            <commit>false</commit>
+            <maxRows>%%WishApp/Database/JDBCParameters/MaxRows%%</maxRows>
+            <emptyStrAsNil>false</emptyStrAsNil>
+            <jdbcSharedConfig>/SharedResources/Connections/Database/HR_DB.sharedjdbc</jdbcSharedConfig>
+            <statement>select TEST_QUESTION_ID, QUESTION_NUMBER, ANSWERID, SEQID from TIB_USERS_QUESTION_ANSWERS where QUESTION_NUMBER=? and user_REG_id=?</statement>
+            <Prepared_Param_DataType>
+                <parameter>
+                    <parameterName>QUESTION_NUMBER</parameterName>
+                    <dataType>INTEGER</dataType>
+                </parameter>
+                <parameter>
+                    <parameterName>USERID</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+            </Prepared_Param_DataType>
+            <oraObjects/>
+            <oraTables/>
+            <QueryOutputCachedSchemaColumns>TEST_QUESTION_ID</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>2</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>NUMBER</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+            <QueryOutputCachedSchemaColumns>QUESTION_NUMBER</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>2</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>NUMBER</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+            <QueryOutputCachedSchemaColumns>ANSWERID</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>2</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>NUMBER</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+            <QueryOutputCachedSchemaColumns>SEQID</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>2</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>NUMBER</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+        </config>
+        <pd:inputBindings>
+            <jdbcQueryActivityInput>
+                <xsl:choose>
+                    <xsl:when test="$JDBC-Query/resultSet/Record[1]/TEST_RESULT='IN PROGRESS'">
+                        <QUESTION_NUMBER>
+                            <xsl:value-of select="1"/>
+                        </QUESTION_NUMBER>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <QUESTION_NUMBER>
+                            <xsl:value-of select="$Parse-JSON/ns1:ActivityOutputClass/group/ns:GetRandomQuestionRequest/ns:QuestionNum"/>
+                        </QUESTION_NUMBER>
+                    </xsl:otherwise>
+                </xsl:choose>
+                <USERID>
+                    <xsl:value-of select="$Parse-JSON/ns1:ActivityOutputClass/group/ns:GetRandomQuestionRequest/ns:UserRegID"/>
+                </USERID>
+            </jdbcQueryActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="GetRandomQuestion">
+        <pd:type>com.tibco.pe.core.CallProcessActivity</pd:type>
+        <pd:resourceType>ae.process.subprocess</pd:resourceType>
+        <pd:x>626</pd:x>
+        <pd:y>167</pd:y>
+        <config>
+            <processName>/Processes/StarterProcess/GetRandomQuestion.process</processName>
+        </config>
+        <pd:inputBindings>
+            <root>
+                <xsl:copy-of select="$Parse-JSON/ns1:ActivityOutputClass/group/ns:GetRandomQuestionRequest"/>
+                <AlreadyAnswered>
+                    <xsl:value-of select="if(count($CheckIfAnswerExists/resultSet/Record)>0) then &quot;true&quot; else &quot;false&quot;"/>
+                </AlreadyAnswered>
+                <xsl:if test="exists($CheckIfAnswerExists/resultSet/Record)">
+                    <xsl:for-each select="$CheckIfAnswerExists/resultSet/Record[1]">
+                        <GivenAnswer>
+                            <QuestionID>
+                                <xsl:value-of select="TEST_QUESTION_ID"/>
+                            </QuestionID>
+                            <QuestionNumber>
+                                <xsl:value-of select="QUESTION_NUMBER"/>
+                            </QuestionNumber>
+                            <AnswerID>
+                                <xsl:value-of select="ANSWERID"/>
+                            </AnswerID>
+                            <SeqID>
+                                <xsl:value-of select="SEQID"/>
+                            </SeqID>
+                            <TestID>
+                                <xsl:value-of select="$Parse-JSON/ns1:ActivityOutputClass/group/ns:GetRandomQuestionRequest/ns:TestID"/>
+                            </TestID>
+                        </GivenAnswer>
+                    </xsl:for-each>
+                </xsl:if>
+            </root>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="JDBC Query">
+        <pd:type>com.tibco.plugin.jdbc.JDBCQueryActivity</pd:type>
+        <pd:resourceType>ae.activities.JDBCQueryActivity</pd:resourceType>
+        <pd:x>306</pd:x>
+        <pd:y>286</pd:y>
+        <config>
+            <timeout>%%WishApp/Database/JDBCParameters/Timeout%%</timeout>
+            <commit>false</commit>
+            <maxRows>%%WishApp/Database/JDBCParameters/MaxRows%%</maxRows>
+            <emptyStrAsNil>false</emptyStrAsNil>
+            <jdbcSharedConfig>/SharedResources/Connections/Database/HR_DB.sharedjdbc</jdbcSharedConfig>
+            <statement>select TEST_RESULT from TIB_TEST_REGISTRATION WHERE USER_REG_ID=? </statement>
+            <Prepared_Param_DataType>
+                <parameter>
+                    <parameterName>USER_REG_ID</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+            </Prepared_Param_DataType>
+            <oraObjects/>
+            <oraTables/>
+            <QueryOutputCachedSchemaColumns>TEST_RESULT</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>12</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>VARCHAR2</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+        </config>
+        <pd:inputBindings>
+            <jdbcQueryActivityInput>
+                <USER_REG_ID>
+                    <xsl:value-of select="$Parse-JSON/ns1:ActivityOutputClass/group/ns:GetRandomQuestionRequest/ns:UserRegID"/>
+                </USER_REG_ID>
+            </jdbcQueryActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Parse JSON">
+        <pd:type>com.tibco.plugin.json.activities.JSONParserActivity</pd:type>
+        <pd:resourceType>ae.activities.JSONParserActivity</pd:resourceType>
+        <pd:x>215</pd:x>
+        <pd:y>167</pd:y>
+        <config>
+            <SchemaType>xsdType</SchemaType>
+            <BadgerfishCheck>false</BadgerfishCheck>
+            <ActivityOutputEditor>
+                <xsd:element name="group">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element ref="ns:GetRandomQuestionRequest"/>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+            </ActivityOutputEditor>
+        </config>
+        <pd:inputBindings>
+            <ns1:ActivityInputClass>
+                <jsonString>
+                    <xsl:value-of select="$Start/jsonRequest"/>
+                </jsonString>
+            </ns1:ActivityInputClass>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Render JSON">
+        <pd:type>com.tibco.plugin.json.activities.JSONRenderActivity</pd:type>
+        <pd:resourceType>ae.activities.JSONRenderActivity</pd:resourceType>
+        <pd:x>792</pd:x>
+        <pd:y>167</pd:y>
+        <config>
+            <SchemaType>xsdType</SchemaType>
+            <BadgerfishCheck>false</BadgerfishCheck>
+            <ActivityInputEditor ref="ns:GetRandomQuestionResponse"/>
+        </config>
+        <pd:inputBindings>
+            <ns1:ActivityInputClass>
+                <xsl:copy-of select="$GetRandomQuestion/root/ns:GetRandomQuestionResponse"/>
+            </ns1:ActivityInputClass>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="TestStartTime">
+        <pd:type>com.tibco.plugin.jdbc.JDBCUpdateActivity</pd:type>
+        <pd:resourceType>ae.activities.JDBCUpdateActivity</pd:resourceType>
+        <pd:x>623</pd:x>
+        <pd:y>283</pd:y>
+        <config>
+            <timeout>%%WishApp/Database/JDBCParameters/Timeout%%</timeout>
+            <commit>false</commit>
+            <emptyStrAsNil>false</emptyStrAsNil>
+            <jdbcSharedConfig>/SharedResources/Connections/Database/HR_DB.sharedjdbc</jdbcSharedConfig>
+            <statement>UPDATE TIB_TEST_REGISTRATION SET TEST_START_DATETIME=?, TEST_RESULT='IN PROGRESS'
+WHERE USER_REG_ID=?</statement>
+            <Prepared_Param_DataType>
+                <parameter>
+                    <parameterName>TEST_START_DATETIME</parameterName>
+                    <dataType>TIMESTAMP</dataType>
+                </parameter>
+                <parameter>
+                    <parameterName>USER_REG_ID</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+            </Prepared_Param_DataType>
+        </config>
+        <pd:inputBindings>
+            <jdbcUpdateActivityInput>
+                <TEST_START_DATETIME>
+                    <xsl:value-of select="current-dateTime()"/>
+                </TEST_START_DATETIME>
+                <USER_REG_ID>
+                    <xsl:value-of select="$Parse-JSON/ns1:ActivityOutputClass/group/ns:GetRandomQuestionRequest/ns:UserRegID"/>
+                </USER_REG_ID>
+            </jdbcUpdateActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:transition>
+        <pd:from>Start</pd:from>
+        <pd:to>Parse JSON</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Render JSON</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Parse JSON</pd:from>
+        <pd:to>CheckIfAnswerExists</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>otherwise</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>CheckIfAnswerExists</pd:from>
+        <pd:to>GetRandomQuestion</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>GetRandomQuestion</pd:from>
+        <pd:to>Render JSON</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Parse JSON</pd:from>
+        <pd:to>JDBC Query</pd:to>
+        <pd:xpathDescription>First Question</pd:xpathDescription>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>xpath</pd:conditionType>
+        <pd:xpath>$Parse-JSON/ns1:ActivityOutputClass/group/ns:GetRandomQuestionRequest/ns:QuestionNum=0</pd:xpath>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>TestStartTime</pd:from>
+        <pd:to>GetRandomQuestion</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>JDBC Query</pd:from>
+        <pd:to>TestStartTime</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>otherwise</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>JDBC Query</pd:from>
+        <pd:to>CheckIfAnswerExists</pd:to>
+        <pd:xpathDescription>In Progress</pd:xpathDescription>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>xpath</pd:conditionType>
+        <pd:xpath>$JDBC-Query/resultSet/Record[1]/TEST_RESULT='IN PROGRESS'</pd:xpath>
+    </pd:transition>
+</pd:ProcessDefinition>

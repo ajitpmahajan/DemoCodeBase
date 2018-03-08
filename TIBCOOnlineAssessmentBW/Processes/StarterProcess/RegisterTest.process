@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pd:ProcessDefinition xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:pfx="http://xmlns.example.com/1484417652447" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:pd="http://xmlns.tibco.com/bw/process/2003" xmlns:ns="http://www.tibco.com/schemas/TIBCO/SharedResources/Schema/TibcoOnlineAssessmentSchema.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://www.tibco.com/namespaces/tnt/plugins/json" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <xsd:import namespace="http://www.tibco.com/schemas/TIBCO/SharedResources/Schema/TibcoOnlineAssessmentSchema.xsd" schemaLocation="/SharedResources/Schema/TIBCOOnlineAssessmentSchema.xsd"/>
+    <wsdl:import namespace="http://xmlns.example.com/1484417652447" location="/SharedResources/WSDL/WSDL.wsdl"/>
+    <pd:name>Processes/StarterProcess/RegisterTest.process</pd:name>
+    <pd:startName>Start</pd:startName>
+    <pd:startType>
+        <xsd:element name="jsonRequest" type="xsd:string"/>
+    </pd:startType>
+    <pd:startX>81</pd:startX>
+    <pd:startY>172</pd:startY>
+    <pd:returnBindings>
+        <jsonResponse>
+            <xsl:value-of select="$Render-JSON/ns1:ActivityOutputClass/jsonString"/>
+        </jsonResponse>
+    </pd:returnBindings>
+    <pd:endName>End</pd:endName>
+    <pd:endType>
+        <xsd:element name="jsonResponse" type="xsd:string"/>
+    </pd:endType>
+    <pd:endX>895</pd:endX>
+    <pd:endY>177</pd:endY>
+    <pd:errorSchemas/>
+    <pd:processVariables/>
+    <pd:targetNamespace>http://xmlns.example.com/1484075326266</pd:targetNamespace>
+    <pd:activity name="InsertUserDetails">
+        <pd:type>com.tibco.plugin.jdbc.JDBCUpdateActivity</pd:type>
+        <pd:resourceType>ae.activities.JDBCUpdateActivity</pd:resourceType>
+        <pd:x>661</pd:x>
+        <pd:y>55</pd:y>
+        <config>
+            <timeout>%%WishApp/Database/JDBCParameters/Timeout%%</timeout>
+            <commit>false</commit>
+            <emptyStrAsNil>true</emptyStrAsNil>
+            <statement>  Insert into TIB_TEST_REGISTRATION
+   (USER_REG_ID, USERID, TESTID,TEST_RESULT,TEST_REGISTRATION_DATE)
+ Values
+   (SEQ_REQID.nextval, ?, ?, ?, SYSTIMESTAMP)</statement>
+            <jdbcSharedConfig>/SharedResources/Connections/Database/HR_DB.sharedjdbc</jdbcSharedConfig>
+            <Prepared_Param_DataType>
+                <parameter>
+                    <parameterName>USERID</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+                <parameter>
+                    <parameterName>TESTID</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+                <parameter>
+                    <parameterName>TESTRESULT</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+            </Prepared_Param_DataType>
+        </config>
+        <pd:inputBindings>
+            <jdbcUpdateActivityInput>
+                <USERID>
+                    <xsl:value-of select="$Parse-JSON/ns1:ActivityOutputClass/ns:RegisterUserRequest/ns:UserID"/>
+                </USERID>
+                <TESTID>
+                    <xsl:value-of select="$Parse-JSON/ns1:ActivityOutputClass/ns:RegisterUserRequest/ns:TestID"/>
+                </TESTID>
+                <TESTRESULT>
+                    <xsl:value-of select="'PENDING'"/>
+                </TESTRESULT>
+            </jdbcUpdateActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Parse JSON">
+        <pd:type>com.tibco.plugin.json.activities.JSONParserActivity</pd:type>
+        <pd:resourceType>ae.activities.JSONParserActivity</pd:resourceType>
+        <pd:x>239</pd:x>
+        <pd:y>170</pd:y>
+        <config>
+            <SchemaType>xsdType</SchemaType>
+            <BadgerfishCheck>false</BadgerfishCheck>
+            <ActivityOutputEditor ref="ns:RegisterUserRequest"/>
+        </config>
+        <pd:inputBindings>
+            <ns1:ActivityInputClass>
+                <jsonString>
+                    <xsl:value-of select="$Start/jsonRequest"/>
+                </jsonString>
+            </ns1:ActivityInputClass>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Render JSON">
+        <pd:type>com.tibco.plugin.json.activities.JSONRenderActivity</pd:type>
+        <pd:resourceType>ae.activities.JSONRenderActivity</pd:resourceType>
+        <pd:x>666</pd:x>
+        <pd:y>183</pd:y>
+        <config>
+            <SchemaType>xsdType</SchemaType>
+            <BadgerfishCheck>false</BadgerfishCheck>
+            <ActivityInputEditor ref="ns:Response"/>
+        </config>
+        <pd:inputBindings>
+            <xsl:choose>
+                <xsl:when test="$JDBC-Query/resultSet/Record/COUNTUSERID>0">
+                    <ns1:ActivityInputClass>
+                        <ns:Response>
+                            <xsl:value-of select="&quot;User is Already Registered for this Test&quot;"/>
+                        </ns:Response>
+                    </ns1:ActivityInputClass>
+                </xsl:when>
+                <xsl:otherwise>
+                    <ns1:ActivityInputClass>
+                        <ns:Response>
+                            <xsl:value-of select="&quot;Success&quot;"/>
+                        </ns:Response>
+                    </ns1:ActivityInputClass>
+                </xsl:otherwise>
+            </xsl:choose>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="JDBC Query">
+        <pd:type>com.tibco.plugin.jdbc.JDBCQueryActivity</pd:type>
+        <pd:resourceType>ae.activities.JDBCQueryActivity</pd:resourceType>
+        <pd:x>341</pd:x>
+        <pd:y>56</pd:y>
+        <config>
+            <timeout>%%WishApp/Database/JDBCParameters/Timeout%%</timeout>
+            <commit>false</commit>
+            <maxRows>%%WishApp/Database/JDBCParameters/MaxRows%%</maxRows>
+            <emptyStrAsNil>false</emptyStrAsNil>
+            <statement>select COUNT(USERID)  from TIB_TEST_REGISTRATION
+where USERID =? and TESTID =? and TEST_RESULT='PENDING' </statement>
+            <jdbcSharedConfig>/SharedResources/Connections/Database/HR_DB.sharedjdbc</jdbcSharedConfig>
+            <Prepared_Param_DataType>
+                <parameter>
+                    <parameterName>USERID</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+                <parameter>
+                    <parameterName>TESTID</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+            </Prepared_Param_DataType>
+            <oraObjects/>
+            <oraTables/>
+            <QueryOutputCachedSchemaColumns>COUNTUSERID</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>2</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>NUMBER</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+        </config>
+        <pd:inputBindings>
+            <jdbcQueryActivityInput>
+                <USERID>
+                    <xsl:value-of select="$Parse-JSON/ns1:ActivityOutputClass/ns:RegisterUserRequest/ns:UserID"/>
+                </USERID>
+                <TESTID>
+                    <xsl:value-of select="$Parse-JSON/ns1:ActivityOutputClass/ns:RegisterUserRequest/ns:TestID"/>
+                </TESTID>
+            </jdbcQueryActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:transition>
+        <pd:from>Start</pd:from>
+        <pd:to>Parse JSON</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>InsertUserDetails</pd:from>
+        <pd:to>Render JSON</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Parse JSON</pd:from>
+        <pd:to>JDBC Query</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>JDBC Query</pd:from>
+        <pd:to>Render JSON</pd:to>
+        <pd:xpathDescription>Existing</pd:xpathDescription>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>xpath</pd:conditionType>
+        <pd:xpath>$JDBC-Query/resultSet/Record/COUNTUSERID&gt;0</pd:xpath>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>JDBC Query</pd:from>
+        <pd:to>InsertUserDetails</pd:to>
+        <pd:xpathDescription>New Entry</pd:xpathDescription>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>otherwise</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Render JSON</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+</pd:ProcessDefinition>

@@ -1,0 +1,667 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pd:ProcessDefinition xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:pfx="http://www.tibco.com/schemas/TIBCO/SharedResources/Schema/TibcoOnlineAssessmentSchema.xsd" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:pd="http://xmlns.tibco.com/bw/process/2003" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:pfx1="http://xmlns.example.com/1484417652447" xmlns:ns1="http://www.tibco.com/namespaces/tnt/plugins/json" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <xsd:import namespace="http://www.tibco.com/schemas/TIBCO/SharedResources/Schema/TibcoOnlineAssessmentSchema.xsd" schemaLocation="/SharedResources/Schema/TIBCOOnlineAssessmentSchema.xsd"/>
+    <pd:name>Processes/StarterProcess/GetRandomQuestion.process</pd:name>
+    <pd:startName>Start</pd:startName>
+    <pd:startType>
+        <xsd:element name="root">
+            <xsd:complexType>
+                <xsd:sequence>
+                    <xsd:element ref="pfx:GetRandomQuestionRequest"/>
+                    <xsd:element name="AlreadyAnswered" type="xsd:boolean"/>
+                    <xsd:element name="GivenAnswer" minOccurs="0">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="QuestionID" type="xsd:string"/>
+                                <xsd:element name="QuestionNumber" type="xsd:string"/>
+                                <xsd:element name="AnswerID" type="xsd:string"/>
+                                <xsd:element name="SeqID" type="xsd:string"/>
+                                <xsd:element name="TestID" type="xsd:string"/>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:element>
+    </pd:startType>
+    <pd:startX>158</pd:startX>
+    <pd:startY>178</pd:startY>
+    <pd:returnBindings>
+        <root>
+            <xsl:choose>
+                <xsl:when test="$Start/root/AlreadyAnswered=&quot;true&quot;">
+                    <pfx:GetRandomQuestionResponse>
+                        <pfx:SeqId>
+                            <xsl:value-of select="$GetCurrentQnA/resultSet/Record[1]/SEQID"/>
+                        </pfx:SeqId>
+                        <pfx:QuestionSeqNum>
+                            <xsl:value-of select="$Start/root/GivenAnswer/QuestionNumber"/>
+                        </pfx:QuestionSeqNum>
+                        <pfx:Question>
+                            <pfx:ID>
+                                <xsl:value-of select="$GetCurrentQnA/resultSet/Record[1]/QUESTIONID"/>
+                            </pfx:ID>
+                            <pfx:Description>
+                                <xsl:value-of select="$GetCurrentQnA/resultSet/Record[1]/QUESTION"/>
+                            </pfx:Description>
+                        </pfx:Question>
+                        <pfx:Answer1>
+                            <pfx:ID>
+                                <xsl:value-of select="$GetCurrentQnA/resultSet/Record[1]/ANSWERID"/>
+                            </pfx:ID>
+                            <pfx:Description>
+                                <xsl:value-of select="$GetCurrentQnA/resultSet/Record[1]/ANSWER"/>
+                            </pfx:Description>
+                            <pfx:IsSelected>
+                                <xsl:value-of select="if($GetCurrentQnA/resultSet/Record[1]/ANSWERID=$Start/root/GivenAnswer/AnswerID)then &quot;y&quot; else &quot;n&quot;"/>
+                            </pfx:IsSelected>
+                        </pfx:Answer1>
+                        <pfx:Answer2>
+                            <pfx:ID>
+                                <xsl:value-of select="$GetCurrentQnA/resultSet/Record[2]/ANSWERID"/>
+                            </pfx:ID>
+                            <pfx:Description>
+                                <xsl:value-of select="$GetCurrentQnA/resultSet/Record[2]/ANSWER"/>
+                            </pfx:Description>
+                            <pfx:IsSelected>
+                                <xsl:value-of select="if($GetCurrentQnA/resultSet/Record[2]/ANSWERID=$Start/root/GivenAnswer/AnswerID)then &quot;y&quot; else &quot;n&quot;"/>
+                            </pfx:IsSelected>
+                        </pfx:Answer2>
+                        <pfx:Answer3>
+                            <pfx:ID>
+                                <xsl:value-of select="$GetCurrentQnA/resultSet/Record[3]/ANSWERID"/>
+                            </pfx:ID>
+                            <pfx:Description>
+                                <xsl:value-of select="$GetCurrentQnA/resultSet/Record[3]/ANSWER"/>
+                            </pfx:Description>
+                            <pfx:IsSelected>
+                                <xsl:value-of select="if($GetCurrentQnA/resultSet/Record[3]/ANSWERID=$Start/root/GivenAnswer/AnswerID)then &quot;y&quot; else &quot;n&quot;"/>
+                            </pfx:IsSelected>
+                        </pfx:Answer3>
+                        <pfx:Answer4>
+                            <pfx:ID>
+                                <xsl:value-of select="$GetCurrentQnA/resultSet/Record[4]/ANSWERID"/>
+                            </pfx:ID>
+                            <pfx:Description>
+                                <xsl:value-of select="$GetCurrentQnA/resultSet/Record[4]/ANSWER"/>
+                            </pfx:Description>
+                            <pfx:IsSelected>
+                                <xsl:value-of select="if($GetCurrentQnA/resultSet/Record[4]/ANSWERID=$Start/root/GivenAnswer/AnswerID)then &quot;y&quot; else &quot;n&quot;"/>
+                            </pfx:IsSelected>
+                        </pfx:Answer4>
+                        <pfx:LastQts>
+                            <xsl:value-of select="if($Variable/root/LastSectionCheck =&quot;true&quot; and&#xA;($GetSectionCount/resultSet/Record[last()]/QUESTIONS_COUNT - $GetCurrentSectionCount/resultSet/Record[1]/COUNT) = 1)&#xA;then&#xA;&quot;true&quot;&#xA;else &quot;false&quot;"/>
+                        </pfx:LastQts>
+                    </pfx:GetRandomQuestionResponse>
+                </xsl:when>
+                <xsl:when test="exists($QueryQuestionsAnswers/resultSet/Record)">
+                    <pfx:GetRandomQuestionResponse>
+                        <pfx:SeqId>
+                            <xsl:value-of select="if($Start/root/pfx:GetRandomQuestionRequest/pfx:QuestionNum=0) then&#xA;$Start/root/pfx:GetRandomQuestionRequest/pfx:SeqId&#xA;else&#xA;$Variable/root/SeqID"/>
+                        </pfx:SeqId>
+                        <pfx:QuestionSeqNum>
+                            <xsl:value-of select="if ($Start/root/pfx:GetRandomQuestionRequest/pfx:QuestionNum= 0)&#xA; then 1&#xA;else &#xA;$Start/root/pfx:GetRandomQuestionRequest/pfx:QuestionNum"/>
+                        </pfx:QuestionSeqNum>
+                        <pfx:Question>
+                            <pfx:ID>
+                                <xsl:value-of select="$QueryQuestions/resultSet/Record[1]/QUESTIONID"/>
+                            </pfx:ID>
+                            <pfx:Description>
+                                <xsl:value-of select="$QueryQuestions/resultSet/Record[1]/QUESTION"/>
+                            </pfx:Description>
+                        </pfx:Question>
+                        <pfx:Answer1>
+                            <pfx:ID>
+                                <xsl:value-of select="$QueryQuestionsAnswers/resultSet/Record[1]/ANSWERID"/>
+                            </pfx:ID>
+                            <pfx:Description>
+                                <xsl:value-of select="$QueryQuestionsAnswers/resultSet/Record[1]/ANSWER"/>
+                            </pfx:Description>
+                            <pfx:IsSelected>
+                                <xsl:value-of select="&quot;n&quot;"/>
+                            </pfx:IsSelected>
+                        </pfx:Answer1>
+                        <pfx:Answer2>
+                            <pfx:ID>
+                                <xsl:value-of select="$QueryQuestionsAnswers/resultSet/Record[2]/ANSWERID"/>
+                            </pfx:ID>
+                            <pfx:Description>
+                                <xsl:value-of select="$QueryQuestionsAnswers/resultSet/Record[2]/ANSWER"/>
+                            </pfx:Description>
+                            <pfx:IsSelected>
+                                <xsl:value-of select="&quot;n&quot;"/>
+                            </pfx:IsSelected>
+                        </pfx:Answer2>
+                        <pfx:Answer3>
+                            <pfx:ID>
+                                <xsl:value-of select="$QueryQuestionsAnswers/resultSet/Record[3]/ANSWERID"/>
+                            </pfx:ID>
+                            <pfx:Description>
+                                <xsl:value-of select="$QueryQuestionsAnswers/resultSet/Record[3]/ANSWER"/>
+                            </pfx:Description>
+                            <pfx:IsSelected>
+                                <xsl:value-of select="&quot;n&quot;"/>
+                            </pfx:IsSelected>
+                        </pfx:Answer3>
+                        <pfx:Answer4>
+                            <pfx:ID>
+                                <xsl:value-of select="$QueryQuestionsAnswers/resultSet/Record[4]/ANSWERID"/>
+                            </pfx:ID>
+                            <pfx:Description>
+                                <xsl:value-of select="$QueryQuestionsAnswers/resultSet/Record[4]/ANSWER"/>
+                            </pfx:Description>
+                            <pfx:IsSelected>
+                                <xsl:value-of select="&quot;n&quot;"/>
+                            </pfx:IsSelected>
+                        </pfx:Answer4>
+                        <pfx:LastQts>
+                            <xsl:value-of select="if($Variable/root/LastSectionCheck =&quot;true&quot; and&#xA;($GetSectionCount/resultSet/Record[last()]/QUESTIONS_COUNT - $GetCurrentSectionCount/resultSet/Record[1]/COUNT) = 1)&#xA;then&#xA;&quot;true&quot;&#xA;else &quot;false&quot;"/>
+                        </pfx:LastQts>
+                    </pfx:GetRandomQuestionResponse>
+                </xsl:when>
+            </xsl:choose>
+        </root>
+    </pd:returnBindings>
+    <pd:endName>End</pd:endName>
+    <pd:endType>
+        <xsd:element name="root">
+            <xsd:complexType>
+                <xsd:sequence>
+                    <xsd:element ref="pfx:GetRandomQuestionResponse" minOccurs="0"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:element>
+    </pd:endType>
+    <pd:endX>976</pd:endX>
+    <pd:endY>180</pd:endY>
+    <pd:errorSchemas/>
+    <pd:processVariables>
+        <Variable>
+            <xsd:element name="root">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="SeqID" type="xsd:int"/>
+                        <xsd:element name="LastSectionCheck" type="xsd:boolean"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+        </Variable>
+    </pd:processVariables>
+    <pd:targetNamespace>http://xmlns.example.com/1497974313686</pd:targetNamespace>
+    <pd:activity name="Assign">
+        <pd:type>com.tibco.pe.core.AssignActivity</pd:type>
+        <pd:resourceType>ae.activities.assignActivity</pd:resourceType>
+        <pd:x>548</pd:x>
+        <pd:y>53</pd:y>
+        <config>
+            <variableName>Variable</variableName>
+        </config>
+        <pd:inputBindings>
+            <root>
+                <SeqID>
+                    <xsl:value-of select="if($GetCurrentSectionCount/resultSet/Record[1]/COUNT &lt; $GetSectionCount/resultSet/Record[SEQID=$GetCurrentSectionCount/resultSet/Record[1]/SEQID]/QUESTIONS_COUNT) &#xA;then $GetCurrentSectionCount/resultSet/Record[1]/SEQID&#xA;else $GetCurrentSectionCount/resultSet/Record[1]/SEQID + 1"/>
+                </SeqID>
+                <LastSectionCheck>
+                    <xsl:value-of select="($GetCurrentSectionCount/resultSet/Record[1]/SEQID=$GetSectionCount/resultSet/Record[last()]/SEQID)"/>
+                </LastSectionCheck>
+            </root>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="GetCurrentQnA">
+        <pd:type>com.tibco.plugin.jdbc.JDBCQueryActivity</pd:type>
+        <pd:resourceType>ae.activities.JDBCQueryActivity</pd:resourceType>
+        <pd:x>503</pd:x>
+        <pd:y>311</pd:y>
+        <config>
+            <timeout>%%WishApp/Database/JDBCParameters/Timeout%%</timeout>
+            <commit>false</commit>
+            <maxRows>%%WishApp/Database/JDBCParameters/MaxRows%%</maxRows>
+            <emptyStrAsNil>false</emptyStrAsNil>
+            <jdbcSharedConfig>/SharedResources/Connections/Database/HR_DB.sharedjdbc</jdbcSharedConfig>
+            <statement>SELECT q.QUESTION, a.ANSWERID, a.QUESTIONID, a.ANSWER, a.IS_RIGHT_ANSWER, q.SEQID  FROM TIB_QUESTIONS q, TIB_QUESTION_ANSWERS a WHERE a.QUESTIONID=q.QUESTIONID and q.QUESTIONID = ? ORDER BY dbms_random.value</statement>
+            <Prepared_Param_DataType>
+                <parameter>
+                    <parameterName>QUESTION_ID</parameterName>
+                    <dataType>INTEGER</dataType>
+                </parameter>
+            </Prepared_Param_DataType>
+            <oraObjects/>
+            <oraTables/>
+            <QueryOutputCachedSchemaColumns>QUESTION</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>12</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>VARCHAR2</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+            <QueryOutputCachedSchemaColumns>ANSWERID</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>2</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>NUMBER</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+            <QueryOutputCachedSchemaColumns>QUESTIONID</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>2</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>NUMBER</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+            <QueryOutputCachedSchemaColumns>ANSWER</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>12</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>VARCHAR2</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+            <QueryOutputCachedSchemaColumns>IS_RIGHT_ANSWER</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>12</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>VARCHAR2</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+            <QueryOutputCachedSchemaColumns>SEQID</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>2</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>NUMBER</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+        </config>
+        <pd:inputBindings>
+            <jdbcQueryActivityInput>
+                <QUESTION_ID>
+                    <xsl:choose>
+                        <xsl:when test="exists($Start/root/GivenAnswer/QuestionID)">
+                            <xsl:value-of select="$Start/root/GivenAnswer/QuestionID"/>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:attribute name="xsi:nil">true</xsl:attribute>
+                        </xsl:otherwise>
+                    </xsl:choose>
+                </QUESTION_ID>
+            </jdbcQueryActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="GetCurrentSectionCount">
+        <pd:type>com.tibco.plugin.jdbc.JDBCQueryActivity</pd:type>
+        <pd:resourceType>ae.activities.JDBCQueryActivity</pd:resourceType>
+        <pd:x>282</pd:x>
+        <pd:y>53</pd:y>
+        <config>
+            <timeout>%%WishApp/Database/JDBCParameters/Timeout%%</timeout>
+            <commit>false</commit>
+            <maxRows>%%WishApp/Database/JDBCParameters/MaxRows%%</maxRows>
+            <emptyStrAsNil>false</emptyStrAsNil>
+            <jdbcSharedConfig>/SharedResources/Connections/Database/HR_DB.sharedjdbc</jdbcSharedConfig>
+            <statement>select SEQID, COUNT(*) from TIB_USERS_QUESTION_ANSWERS where seqid =? and user_REG_id=?  GROUP by SEQID</statement>
+            <Prepared_Param_DataType>
+                <parameter>
+                    <parameterName>SEQID</parameterName>
+                    <dataType>INTEGER</dataType>
+                </parameter>
+                <parameter>
+                    <parameterName>USERID</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+            </Prepared_Param_DataType>
+            <oraObjects/>
+            <oraTables/>
+            <QueryOutputCachedSchemaColumns>SEQID</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>2</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>NUMBER</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+            <QueryOutputCachedSchemaColumns>COUNT</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>2</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>NUMBER</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+        </config>
+        <pd:inputBindings>
+            <jdbcQueryActivityInput>
+                <SEQID>
+                    <xsl:value-of select="$Start/root/pfx:GetRandomQuestionRequest/pfx:SeqId"/>
+                </SEQID>
+                <USERID>
+                    <xsl:value-of select="$Start/root/pfx:GetRandomQuestionRequest/pfx:UserRegID"/>
+                </USERID>
+            </jdbcQueryActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="GetSectionCount">
+        <pd:type>com.tibco.plugin.jdbc.JDBCQueryActivity</pd:type>
+        <pd:resourceType>ae.activities.JDBCQueryActivity</pd:resourceType>
+        <pd:x>420</pd:x>
+        <pd:y>53</pd:y>
+        <config>
+            <timeout>%%WishApp/Database/JDBCParameters/Timeout%%</timeout>
+            <commit>false</commit>
+            <maxRows>%%WishApp/Database/JDBCParameters/MaxRows%%</maxRows>
+            <emptyStrAsNil>false</emptyStrAsNil>
+            <jdbcSharedConfig>/SharedResources/Connections/Database/HR_DB.sharedjdbc</jdbcSharedConfig>
+            <statement>select tr.TESTID, tm.seqid, tm.questions_count from TIB_TEST_REGISTRATION tr, TIB_TEST_METADATA tm where tr.user_REG_id=? and tr.testid = tm.testid order by tm.seqid</statement>
+            <Prepared_Param_DataType>
+                <parameter>
+                    <parameterName>USER_REG_ID</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+            </Prepared_Param_DataType>
+            <oraObjects/>
+            <oraTables/>
+            <QueryOutputCachedSchemaColumns>TESTID</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>2</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>NUMBER</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+            <QueryOutputCachedSchemaColumns>SEQID</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>2</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>NUMBER</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+            <QueryOutputCachedSchemaColumns>QUESTIONS_COUNT</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>2</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>NUMBER</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+        </config>
+        <pd:inputBindings>
+            <jdbcQueryActivityInput>
+                <USER_REG_ID>
+                    <xsl:value-of select="$Start/root/pfx:GetRandomQuestionRequest/pfx:UserRegID"/>
+                </USER_REG_ID>
+            </jdbcQueryActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="QueryQuestions">
+        <pd:type>com.tibco.plugin.jdbc.JDBCQueryActivity</pd:type>
+        <pd:resourceType>ae.activities.JDBCQueryActivity</pd:resourceType>
+        <pd:x>462</pd:x>
+        <pd:y>178</pd:y>
+        <config>
+            <timeout>%%WishApp/Database/JDBCParameters/Timeout%%</timeout>
+            <commit>false</commit>
+            <maxRows>%%WishApp/Database/JDBCParameters/MaxRows%%</maxRows>
+            <emptyStrAsNil>false</emptyStrAsNil>
+            <jdbcSharedConfig>/SharedResources/Connections/Database/HR_DB.sharedjdbc</jdbcSharedConfig>
+            <statement>SELECT * FROM
+( SELECT * FROM TIB_QUESTIONS where SEQID=? and TESTID=? and QUESTIONID NOT IN( select TEST_QUESTION_ID from TIB_USERS_QUESTION_ANSWERS where USER_REG_ID = ?)
+ORDER BY dbms_random.value )
+WHERE rownum = 1 </statement>
+            <oraObjects/>
+            <oraTables/>
+            <QueryOutputCachedSchemaColumns>QUESTIONID</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>2</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>NUMBER</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+            <QueryOutputCachedSchemaColumns>QUESTION</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>12</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>VARCHAR2</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+            <QueryOutputCachedSchemaColumns>TESTID</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>2</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>NUMBER</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+            <QueryOutputCachedSchemaColumns>IS_ACTIVE</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>12</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>VARCHAR2</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+            <QueryOutputCachedSchemaColumns>SEQID</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>2</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>NUMBER</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+            <Prepared_Param_DataType>
+                <parameter>
+                    <parameterName>SEQID</parameterName>
+                    <dataType>INTEGER</dataType>
+                </parameter>
+                <parameter>
+                    <parameterName>TESTID</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+                <parameter>
+                    <parameterName>USER_REG_ID</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+            </Prepared_Param_DataType>
+        </config>
+        <pd:inputBindings>
+            <xsl:choose xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+                <xsl:when test="$Start/root/pfx:GetRandomQuestionRequest/pfx:QuestionNum!=0">
+                    <jdbcQueryActivityInput>
+                        <SEQID>
+                            <xsl:value-of select="$Variable/root/SeqID"/>
+                        </SEQID>
+                        <TESTID>
+                            <xsl:value-of select="$Start/root/pfx:GetRandomQuestionRequest/pfx:TestID"/>
+                        </TESTID>
+                        <USER_REG_ID>
+                            <xsl:value-of select="$Start/root/pfx:GetRandomQuestionRequest/pfx:UserRegID"/>
+                        </USER_REG_ID>
+                    </jdbcQueryActivityInput>
+                </xsl:when>
+                <xsl:otherwise>
+                    <jdbcQueryActivityInput>
+                        <SEQID>
+                            <xsl:value-of select="$Start/root/pfx:GetRandomQuestionRequest/pfx:SeqId"/>
+                        </SEQID>
+                        <TESTID>
+                            <xsl:value-of select="$Start/root/pfx:GetRandomQuestionRequest/pfx:TestID"/>
+                        </TESTID>
+                        <USER_REG_ID>
+                            <xsl:value-of select="$Start/root/pfx:GetRandomQuestionRequest/pfx:UserRegID"/>
+                        </USER_REG_ID>
+                    </jdbcQueryActivityInput>
+                </xsl:otherwise>
+            </xsl:choose>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="QueryQuestionsAnswers">
+        <pd:type>com.tibco.plugin.jdbc.JDBCQueryActivity</pd:type>
+        <pd:resourceType>ae.activities.JDBCQueryActivity</pd:resourceType>
+        <pd:x>611</pd:x>
+        <pd:y>178</pd:y>
+        <config>
+            <timeout>%%WishApp/Database/JDBCParameters/Timeout%%</timeout>
+            <commit>false</commit>
+            <maxRows>%%WishApp/Database/JDBCParameters/MaxRows%%</maxRows>
+            <emptyStrAsNil>false</emptyStrAsNil>
+            <jdbcSharedConfig>/SharedResources/Connections/Database/HR_DB.sharedjdbc</jdbcSharedConfig>
+            <statement>SELECT ANSWERID, QUESTIONID, ANSWER, IS_RIGHT_ANSWER  FROM TIB_QUESTION_ANSWERS WHERE QUESTIONID = ? ORDER BY dbms_random.value </statement>
+            <Prepared_Param_DataType>
+                <parameter>
+                    <parameterName>QUESTIONID</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+            </Prepared_Param_DataType>
+            <oraObjects/>
+            <oraTables/>
+            <QueryOutputCachedSchemaColumns>ANSWERID</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>2</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>NUMBER</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+            <QueryOutputCachedSchemaColumns>QUESTIONID</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>2</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>NUMBER</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+            <QueryOutputCachedSchemaColumns>ANSWER</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>12</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>VARCHAR2</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+            <QueryOutputCachedSchemaColumns>IS_RIGHT_ANSWER</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>12</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>VARCHAR2</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+        </config>
+        <pd:inputBindings>
+            <jdbcQueryActivityInput>
+                <xsl:choose>
+                    <xsl:when test="$Start/root/AlreadyAnswered='true'">
+                        <QUESTIONID>
+                            <xsl:choose>
+                                <xsl:when test="exists($Start/root/GivenAnswer/QuestionID)">
+                                    <xsl:value-of select="$Start/root/GivenAnswer/QuestionID"/>
+                                </xsl:when>
+                                <xsl:otherwise>
+                                    <xsl:attribute name="xsi:nil">true</xsl:attribute>
+                                </xsl:otherwise>
+                            </xsl:choose>
+                        </QUESTIONID>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <QUESTIONID>
+                            <xsl:choose>
+                                <xsl:when test="exists($QueryQuestions/resultSet/Record[1]/QUESTIONID)">
+                                    <xsl:value-of select="$QueryQuestions/resultSet/Record[1]/QUESTIONID"/>
+                                </xsl:when>
+                                <xsl:otherwise>
+                                    <xsl:attribute name="xsi:nil">true</xsl:attribute>
+                                </xsl:otherwise>
+                            </xsl:choose>
+                        </QUESTIONID>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </jdbcQueryActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="InsertUserAnswer">
+        <pd:type>com.tibco.plugin.jdbc.JDBCUpdateActivity</pd:type>
+        <pd:resourceType>ae.activities.JDBCUpdateActivity</pd:resourceType>
+        <pd:x>774</pd:x>
+        <pd:y>180</pd:y>
+        <config>
+            <timeout>%%WishApp/Database/JDBCParameters/Timeout%%</timeout>
+            <commit>false</commit>
+            <emptyStrAsNil>true</emptyStrAsNil>
+            <statement> Insert into TIB_USERS_QUESTION_ANSWERS
+   (USER_REG_ID, QUESTION_NUMBER, TEST_QUESTION_ID, ANSWERID,IS_RIGHT, SEQID)
+ Values
+   (?, ?, ?, ?,?,?)</statement>
+            <jdbcSharedConfig>/SharedResources/Connections/Database/HR_DB.sharedjdbc</jdbcSharedConfig>
+            <Prepared_Param_DataType>
+                <parameter>
+                    <parameterName>USERID</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+                <parameter>
+                    <parameterName>QUESTION_NUMBER</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+                <parameter>
+                    <parameterName>QUESTIONID</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+                <parameter>
+                    <parameterName>ANSWERID</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+                <parameter>
+                    <parameterName>IS_RIGHT</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+                <parameter>
+                    <parameterName>QUESTIONSEQ</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+            </Prepared_Param_DataType>
+        </config>
+        <pd:inputBindings>
+            <jdbcUpdateActivityInput>
+                <USERID>
+                    <xsl:value-of select="$Start/root/pfx:GetRandomQuestionRequest/pfx:UserRegID"/>
+                </USERID>
+                <QUESTION_NUMBER>
+                    <xsl:value-of select="if($Start/root/pfx:GetRandomQuestionRequest/pfx:QuestionNum=0) then 1 else $Start/root/pfx:GetRandomQuestionRequest/pfx:QuestionNum"/>
+                </QUESTION_NUMBER>
+                <QUESTIONID>
+                    <xsl:choose>
+                        <xsl:when test="exists($QueryQuestions/resultSet/Record[1]/QUESTIONID)">
+                            <xsl:value-of select="$QueryQuestions/resultSet/Record[1]/QUESTIONID"/>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:attribute name="xsi:nil">true</xsl:attribute>
+                        </xsl:otherwise>
+                    </xsl:choose>
+                </QUESTIONID>
+                <ANSWERID>
+                    <xsl:value-of select="&quot;&quot;"/>
+                </ANSWERID>
+                <IS_RIGHT xsi:nil="true"/>
+                <xsl:choose>
+                    <xsl:when test="$Start/root/pfx:GetRandomQuestionRequest/pfx:QuestionNum!=0">
+                        <QUESTIONSEQ>
+                            <xsl:value-of select="$Variable/root/SeqID"/>
+                        </QUESTIONSEQ>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <QUESTIONSEQ>
+                            <xsl:value-of select="$Start/root/pfx:GetRandomQuestionRequest/pfx:SeqId"/>
+                        </QUESTIONSEQ>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </jdbcUpdateActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:transition>
+        <pd:from>Start</pd:from>
+        <pd:to>GetCurrentSectionCount</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>otherwise</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>GetCurrentSectionCount</pd:from>
+        <pd:to>GetSectionCount</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>GetSectionCount</pd:from>
+        <pd:to>Assign</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Assign</pd:from>
+        <pd:to>End</pd:to>
+        <pd:xpathDescription>LastQts</pd:xpathDescription>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>xpath</pd:conditionType>
+        <pd:xpath>$Variable/root/LastSectionCheck="true" and ($GetCurrentSectionCount/resultSet/Record[1]/COUNT = $GetSectionCount/resultSet/Record[last()]/QUESTIONS_COUNT)</pd:xpath>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Start</pd:from>
+        <pd:to>QueryQuestions</pd:to>
+        <pd:xpathDescription>1st Question</pd:xpathDescription>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>xpath</pd:conditionType>
+        <pd:xpath>$Start/root/pfx:GetRandomQuestionRequest/pfx:QuestionNum=0 and $Start/root/AlreadyAnswered="false"</pd:xpath>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>QueryQuestions</pd:from>
+        <pd:to>QueryQuestionsAnswers</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>QueryQuestionsAnswers</pd:from>
+        <pd:to>InsertUserAnswer</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Start</pd:from>
+        <pd:to>GetCurrentQnA</pd:to>
+        <pd:xpathDescription>Already Answered</pd:xpathDescription>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>xpath</pd:conditionType>
+        <pd:xpath>$Start/root/AlreadyAnswered="true"</pd:xpath>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Assign</pd:from>
+        <pd:to>QueryQuestions</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>otherwise</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>GetCurrentQnA</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>InsertUserAnswer</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+</pd:ProcessDefinition>

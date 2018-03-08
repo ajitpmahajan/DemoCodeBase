@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	 xmlns:tib="http://www.tibco.com/schemas/TIBCO/SharedResources/Schema/TibcoOnlineAssessmentSchema.xsd"
+	 targetNamespace="http://www.tibco.com/schemas/TIBCO/SharedResources/Schema/TibcoOnlineAssessmentSchema.xsd"
+	 elementFormDefault="qualified"
+	 attributeFormDefault="unqualified">
+	<xs:element name="SeqId" type="xs:string"/>
+	<xs:element name="Question" type="xs:string"/>
+	<xs:element name="Answer1" type="xs:string"/>
+	<xs:element name="Answer2" type="xs:string"/>
+	<xs:element name="Answer3" type="xs:string"/>
+	<xs:element name="Answer4" type="xs:string"/>
+	<xs:element name="UserID" type="xs:string"/>
+	<xs:element name="QuestionSeqNum" type="xs:string"/>
+	<xs:element name="Answer1ID" type="xs:string"/>
+	<xs:element name="Answer2ID" type="xs:string"/>
+	<xs:element name="Answer3ID" type="xs:string"/>
+	<xs:element name="Answer4ID" type="xs:string"/>
+	<xs:element name="QuestionID" type="xs:string"/>
+	<xs:element name="ID" type="xs:string"/>
+	<xs:element name="Description" type="xs:string"/>
+	<xs:element name="SelectedAnswerID" type="xs:string"/>
+	<xs:element name="GetRandomQuestionRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="tib:UserRegID"/>
+				<xs:element ref="tib:QuestionNum"/>
+				<xs:element ref="tib:SeqId"/>
+				<xs:element ref="tib:TestID"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="GetRandomQuestionResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="tib:SeqId"/>
+				<xs:element ref="tib:QuestionSeqNum"/>
+				<xs:element name="Question">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element ref="tib:ID"/>
+							<xs:element ref="tib:Description"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Answer1">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element ref="tib:ID"/>
+							<xs:element ref="tib:Description"/>
+							<xs:element ref="tib:IsSelected"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Answer2">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element ref="tib:ID"/>
+							<xs:element ref="tib:Description"/>
+							<xs:element ref="tib:IsSelected"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Answer3">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element ref="tib:ID"/>
+							<xs:element ref="tib:Description"/>
+							<xs:element ref="tib:IsSelected"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Answer4">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element ref="tib:ID"/>
+							<xs:element ref="tib:Description"/>
+							<xs:element ref="tib:IsSelected"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="LastQts" type="xs:boolean"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="SetQuestionAnswerRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="tib:UserRegID"/>
+				<xs:element ref="tib:SeqId"/>
+				<xs:element ref="tib:QuestionNum"/>
+				<xs:element ref="tib:QuestionID"/>
+				<xs:element ref="tib:SelectedAnswerID"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Username" type="xs:string"/>
+	<xs:element name="Password" type="xs:string"/>
+	<xs:element name="Useremail" type="xs:string"/>
+	<xs:element name="NumOfQuestion" type="xs:string"/>
+	<xs:element name="NumOfCorrectAnswers" type="xs:string"/>
+	<xs:element name="FinalResult" type="xs:string"/>
+	<xs:element name="UserLoginRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="tib:Username"/>
+				<xs:element ref="tib:Password"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="RegisterUserRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="tib:UserID"/>
+				<xs:element ref="tib:TestID"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="GetUserTestResultResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="tib:UserID"/>
+				<xs:element ref="tib:TestID"/>
+				<xs:element ref="tib:TestName"/>
+				<xs:element ref="tib:MarksScored"/>
+				<xs:element ref="tib:FinalResult"/>
+				<xs:element ref="tib:TotalMarks"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="TestID" type="xs:string"/>
+	<xs:element name="GetUserTestResultRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="tib:UserID"/>
+				<xs:element ref="tib:TestID"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Response" type="xs:string"/>
+	<xs:element name="UserRegID" type="xs:string"/>
+	<xs:element name="QuestionNum" type="xs:string"/>
+	<xs:element name="IsSelected">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="y"/>
+				<xs:enumeration value="n"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="TestDetailsResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="tib:TestID"/>
+				<xs:element ref="tib:TestName"/>
+				<xs:element ref="tib:TestDuration"/>
+				<xs:element ref="tib:UserRegID"/>
+				<xs:element ref="tib:NumOfQuestion"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="TestName" type="xs:string"/>
+	<xs:element name="TestDuration" type="xs:decimal"/>
+	<xs:element name="SetUserTestResultRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="tib:UserRegID"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="MarksScored" type="xs:string"/>
+	<xs:element name="TotalMarks" type="xs:string"/>
+	<xs:element name="TestMetaData">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="tib:TestID"/>
+				<xs:element ref="tib:TestName"/>
+				<xs:element ref="tib:TestDuration"/>
+				<xs:element ref="tib:PassingMarks"/>
+				<xs:element ref="tib:FileName"/>
+				<xs:element ref="tib:SectionDetails" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="PassingMarks" type="xs:int"/>
+	<xs:element name="FileName" type="xs:string"/>
+	<xs:element name="SectionDetails">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="tib:SeqId"/>
+				<xs:element ref="tib:Marks"/>
+				<xs:element ref="tib:NoOfQts"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Marks" type="xs:int"/>
+	<xs:element name="NoOfQts" type="xs:int"/>
+</xs:schema>

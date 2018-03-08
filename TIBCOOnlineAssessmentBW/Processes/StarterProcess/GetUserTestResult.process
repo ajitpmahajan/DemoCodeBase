@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pd:ProcessDefinition xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:pfx="http://xmlns.example.com/1484417652447" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:pd="http://xmlns.tibco.com/bw/process/2003" xmlns:ns="http://www.tibco.com/schemas/TIBCO/SharedResources/Schema/TibcoOnlineAssessmentSchema.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://www.tibco.com/namespaces/tnt/plugins/json" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <xsd:import namespace="http://www.tibco.com/schemas/TIBCO/SharedResources/Schema/TibcoOnlineAssessmentSchema.xsd" schemaLocation="/SharedResources/Schema/TIBCOOnlineAssessmentSchema.xsd"/>
+    <wsdl:import namespace="http://xmlns.example.com/1484417652447" location="/SharedResources/WSDL/WSDL.wsdl"/>
+    <pd:name>Processes/StarterProcess/GetUserTestResult.process</pd:name>
+    <pd:startName>Start</pd:startName>
+    <pd:startType>
+        <xsd:element name="jsonRequest" type="xsd:string"/>
+    </pd:startType>
+    <pd:startX>86</pd:startX>
+    <pd:startY>72</pd:startY>
+    <pd:returnBindings>
+        <jsonResponse>
+            <xsl:value-of select="$Render-JSON/ns1:ActivityOutputClass/jsonString"/>
+        </jsonResponse>
+    </pd:returnBindings>
+    <pd:endName>End</pd:endName>
+    <pd:endType>
+        <xsd:element name="jsonResponse" type="xsd:string"/>
+    </pd:endType>
+    <pd:endX>658</pd:endX>
+    <pd:endY>72</pd:endY>
+    <pd:errorSchemas/>
+    <pd:processVariables/>
+    <pd:targetNamespace>http://xmlns.example.com/1484075326266</pd:targetNamespace>
+    <pd:activity name="JDBC Query">
+        <pd:type>com.tibco.plugin.jdbc.JDBCQueryActivity</pd:type>
+        <pd:resourceType>ae.activities.JDBCQueryActivity</pd:resourceType>
+        <pd:x>348</pd:x>
+        <pd:y>72</pd:y>
+        <config>
+            <timeout>%%WishApp/Database/JDBCParameters/Timeout%%</timeout>
+            <commit>false</commit>
+            <maxRows>%%WishApp/Database/JDBCParameters/MaxRows%%</maxRows>
+            <emptyStrAsNil>false</emptyStrAsNil>
+            <jdbcSharedConfig>/SharedResources/Connections/Database/HR_DB.sharedjdbc</jdbcSharedConfig>
+            <statement>SELECT  tr.MARKS_SCORED , tr.TEST_RESULT, td.TOTAL_MARKS, td.TESTNAME from TIB_TEST_REGISTRATION tr INNER JOIN TIB_TEST_DETAILS td 
+ON tr.TESTID=td.TESTID WHERE tr.USERID=? AND tr.TESTID=? AND  tr.TEST_RESULT!='PENDING'
+ORDER BY tr.TEST_START_DATETIME DESC</statement>
+            <Prepared_Param_DataType>
+                <parameter>
+                    <parameterName>UserID</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+                <parameter>
+                    <parameterName>TestID</parameterName>
+                    <dataType>VARCHAR</dataType>
+                </parameter>
+            </Prepared_Param_DataType>
+            <oraObjects/>
+            <oraTables/>
+            <QueryOutputCachedSchemaColumns>MARKS_SCORED</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>2</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>NUMBER</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+            <QueryOutputCachedSchemaColumns>TEST_RESULT</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>12</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>VARCHAR2</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+            <QueryOutputCachedSchemaColumns>TOTAL_MARKS</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>2</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>NUMBER</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+            <QueryOutputCachedSchemaColumns>TESTNAME</QueryOutputCachedSchemaColumns>
+            <QueryOutputCachedSchemaDataTypes>12</QueryOutputCachedSchemaDataTypes>
+            <QueryOutputCachedSchemaDataTypesName>VARCHAR2</QueryOutputCachedSchemaDataTypesName>
+            <QueryOutputCachedSchemaStatus>OptionalElement</QueryOutputCachedSchemaStatus>
+        </config>
+        <pd:inputBindings>
+            <jdbcQueryActivityInput>
+                <UserID>
+                    <xsl:value-of select="$Parse-JSON/ns1:ActivityOutputClass/ns:GetUserTestResultRequest/ns:UserID"/>
+                </UserID>
+                <TestID>
+                    <xsl:value-of select="$Parse-JSON/ns1:ActivityOutputClass/ns:GetUserTestResultRequest/ns:TestID"/>
+                </TestID>
+            </jdbcQueryActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Parse JSON">
+        <pd:type>com.tibco.plugin.json.activities.JSONParserActivity</pd:type>
+        <pd:resourceType>ae.activities.JSONParserActivity</pd:resourceType>
+        <pd:x>219</pd:x>
+        <pd:y>72</pd:y>
+        <config>
+            <SchemaType>xsdType</SchemaType>
+            <BadgerfishCheck>false</BadgerfishCheck>
+            <ActivityOutputEditor ref="ns:GetUserTestResultRequest"/>
+        </config>
+        <pd:inputBindings>
+            <ns1:ActivityInputClass>
+                <jsonString>
+                    <xsl:value-of select="$Start/jsonRequest"/>
+                </jsonString>
+            </ns1:ActivityInputClass>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Render JSON">
+        <pd:type>com.tibco.plugin.json.activities.JSONRenderActivity</pd:type>
+        <pd:resourceType>ae.activities.JSONRenderActivity</pd:resourceType>
+        <pd:x>523</pd:x>
+        <pd:y>72</pd:y>
+        <config>
+            <SchemaType>xsdType</SchemaType>
+            <BadgerfishCheck>false</BadgerfishCheck>
+            <ActivityInputEditor ref="ns:GetUserTestResultResponse"/>
+        </config>
+        <pd:inputBindings>
+            <ns1:ActivityInputClass>
+                <ns:GetUserTestResultResponse>
+                    <ns:UserID>
+                        <xsl:value-of select="$Parse-JSON/ns1:ActivityOutputClass/ns:GetUserTestResultRequest/ns:UserID"/>
+                    </ns:UserID>
+                    <ns:TestID>
+                        <xsl:value-of select="$Parse-JSON/ns1:ActivityOutputClass/ns:GetUserTestResultRequest/ns:TestID"/>
+                    </ns:TestID>
+                    <ns:TestName>
+                        <xsl:value-of select="$JDBC-Query/resultSet/Record[1]/TESTNAME"/>
+                    </ns:TestName>
+                    <ns:MarksScored>
+                        <xsl:value-of select="$JDBC-Query/resultSet/Record[1]/MARKS_SCORED"/>
+                    </ns:MarksScored>
+                    <ns:FinalResult>
+                        <xsl:value-of select="$JDBC-Query/resultSet/Record[1]/TEST_RESULT"/>
+                    </ns:FinalResult>
+                    <ns:TotalMarks>
+                        <xsl:value-of select="$JDBC-Query/resultSet/Record[1]/TOTAL_MARKS"/>
+                    </ns:TotalMarks>
+                </ns:GetUserTestResultResponse>
+            </ns1:ActivityInputClass>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:transition>
+        <pd:from>Start</pd:from>
+        <pd:to>Parse JSON</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Parse JSON</pd:from>
+        <pd:to>JDBC Query</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>JDBC Query</pd:from>
+        <pd:to>Render JSON</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Render JSON</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+</pd:ProcessDefinition>

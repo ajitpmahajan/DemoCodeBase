@@ -1,0 +1,29 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<repository xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance" xmlns = "http://www.tibco.com/xmlns/repo/types/2002">
+	<globalVariables>
+		<globalVariable>
+			<name>CSVFilename</name>
+			<value>/home/root/HR_APP/CSV/Master Emp Report.csv</value>
+			<deploymentSettable>true</deploymentSettable>
+			<serviceSettable>false</serviceSettable>
+			<type>String</type>
+			<modTime>1484394036150</modTime>
+		</globalVariable>
+		<globalVariable>
+			<name>CSVPollingInterval</name>
+			<value>5</value>
+			<deploymentSettable>true</deploymentSettable>
+			<serviceSettable>false</serviceSettable>
+			<type>String</type>
+			<modTime>1484394036099</modTime>
+		</globalVariable>
+		<globalVariable>
+			<name>LoadMumbaiDataOnly</name>
+			<value>false</value>
+			<deploymentSettable>true</deploymentSettable>
+			<serviceSettable>false</serviceSettable>
+			<type>Boolean</type>
+			<modTime>1484394036002</modTime>
+		</globalVariable>
+	</globalVariables>
+</repository>
