@@ -4,6 +4,6 @@
     <resourceType>hadoop.sharedresource.HDFSSharedResource</resourceType>
     <config>
         <webhdfsUrl>http://10.97.119.15:50070</webhdfsUrl>
-        <userName>hdfs</userName>
+        <userName>testusername</userName>
     </config>
 </BWSharedResource>
